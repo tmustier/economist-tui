@@ -60,6 +60,43 @@ func IsRunning() bool {
 	return err == nil
 }
 
+func Status(ctx context.Context) (time.Duration, bool, error) {
+	dur, err := ping(ctx)
+	if err == nil {
+		return dur, true, nil
+	}
+	if errors.Is(err, ErrNotRunning) {
+		return 0, false, nil
+	}
+	return 0, false, err
+}
+
+func Shutdown(ctx context.Context) error {
+	client, err := newClient()
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://unix/shutdown", nil)
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		if isConnRefused(err) {
+			return ErrNotRunning
+		}
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("daemon HTTP %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
 func EnsureBackground() error {
 	if IsRunning() {
 		return nil
@@ -180,6 +217,20 @@ func Serve() error {
 		_, _ = w.Write([]byte("ok"))
 	})
 
+	var server *http.Server
+	mux.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		if server != nil {
+			go func() {
+				_ = server.Shutdown(context.Background())
+			}()
+		}
+	})
+
 	var fetchMu sync.Mutex
 	mux.HandleFunc("/fetch", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -218,7 +269,7 @@ func Serve() error {
 		_ = json.NewEncoder(w).Encode(resp)
 	})
 
-	server := &http.Server{
+	server = &http.Server{
 		Handler:      mux,
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 5 * time.Minute,

@@ -16,6 +16,10 @@ economist browse [section]
 # Run background daemon for faster reads
 economist serve
 
+# Check status or stop
+economist serve --status
+economist serve --stop
+
 # Headlines (default section: leaders)
 economist headlines [section] [-n count] [-s search] [--json|--plain]
 

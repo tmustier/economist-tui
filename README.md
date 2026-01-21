@@ -72,7 +72,7 @@ Interactive TUI for browsing headlines and reading articles.
 - `Esc` to clear search / quit
 - `q` to quit
 
-The browse command will opportunistically start the `economist serve` daemon in the background.
+The browse command will opportunistically start the `economist serve` daemon in the background (it stays running until you stop it).
 
 Requires an interactive terminal. For scripts, use `headlines --json`.
 
@@ -84,6 +84,13 @@ Run it manually:
 
 ```bash
 economist serve
+```
+
+Check status or stop it:
+
+```bash
+economist serve --status
+economist serve --stop
 ```
 
 
