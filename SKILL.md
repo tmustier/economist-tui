@@ -13,6 +13,9 @@ CLI tool to browse and read The Economist articles.
 # Interactive browse (TUI, human-only, type to search, ←/→ page)
 economist browse [section]
 
+# Run background daemon for faster reads
+economist serve
+
 # Headlines (default section: leaders)
 economist headlines [section] [-n count] [-s search] [--json|--plain]
 

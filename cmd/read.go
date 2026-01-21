@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bufio"
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,7 +12,9 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
 	"github.com/tmustier/economist-cli/internal/article"
+	"github.com/tmustier/economist-cli/internal/browser"
 	"github.com/tmustier/economist-cli/internal/config"
+	"github.com/tmustier/economist-cli/internal/daemon"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 )
 
@@ -66,6 +70,25 @@ func runRead(cmd *cobra.Command, args []string) error {
 }
 
 func fetchArticle(url string) (*article.Article, error) {
+	if !debugMode {
+		ctx, cancel := context.WithTimeout(context.Background(), browser.FetchTimeout)
+		defer cancel()
+		if art, err := daemon.Fetch(ctx, url, false); err == nil {
+			return validateArticle(art)
+		} else if !errors.Is(err, daemon.ErrNotRunning) {
+			return nil, err
+		}
+	}
+
+	art, err := fetchArticleLocal(url)
+	if err != nil {
+		return nil, err
+	}
+
+	return validateArticle(art)
+}
+
+func fetchArticleLocal(url string) (*article.Article, error) {
 	art, err := article.Fetch(url, article.FetchOptions{Debug: debugMode})
 	if err != nil {
 		if appErrors.IsPaywallError(err) {
@@ -74,10 +97,13 @@ func fetchArticle(url string) (*article.Article, error) {
 		return nil, err
 	}
 
+	return art, nil
+}
+
+func validateArticle(art *article.Article) (*article.Article, error) {
 	if art.Content == "" {
 		return nil, appErrors.NewUserError("no article content found - try 'economist login'")
 	}
-
 	return art, nil
 }
 

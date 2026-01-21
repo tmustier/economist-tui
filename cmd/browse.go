@@ -9,6 +9,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
+	"github.com/tmustier/economist-cli/internal/daemon"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
 	"github.com/tmustier/economist-cli/internal/search"
@@ -37,6 +38,8 @@ func runBrowse(cmd *cobra.Command, args []string) error {
 	if !ui.IsTerminal(int(os.Stdin.Fd())) {
 		return appErrors.NewUserError("browse requires an interactive terminal - use 'headlines --json' for scripts")
 	}
+
+	_ = daemon.EnsureBackground()
 
 	section := "leaders"
 	if len(args) > 0 {

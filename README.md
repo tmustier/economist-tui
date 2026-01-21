@@ -72,7 +72,20 @@ Interactive TUI for browsing headlines and reading articles.
 - `Esc` to clear search / quit
 - `q` to quit
 
+The browse command will opportunistically start the `economist serve` daemon in the background.
+
 Requires an interactive terminal. For scripts, use `headlines --json`.
+
+### `economist serve`
+
+Run a local daemon that keeps a headless browser warm for faster reads. The daemon listens on a Unix socket in `~/.config/economist-cli/serve.sock`.
+
+Run it manually:
+
+```bash
+economist serve
+```
+
 
 ### `economist headlines [section]`
 
