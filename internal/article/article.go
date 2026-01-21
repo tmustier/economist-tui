@@ -9,6 +9,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 	"github.com/tmustier/economist-cli/internal/browser"
 	"github.com/tmustier/economist-cli/internal/config"
@@ -93,8 +94,8 @@ func Fetch(articleURL string, opts FetchOptions) (*Article, error) {
 	var html string
 	debugf(opts.Debug, "navigate start")
 	err = chromedp.Run(ctx,
-		chromedp.Navigate(articleURL),
-		debugStep(opts.Debug, "navigate done"),
+		navigateNoWait(articleURL),
+		debugStep(opts.Debug, "navigate issued"),
 		chromedp.WaitReady("body", chromedp.ByQuery),
 		debugStep(opts.Debug, "body ready"),
 		waitForArticleSelector(articleWaitTimeout),
@@ -288,6 +289,13 @@ func waitForArticleSelector(timeout time.Duration) chromedp.ActionFunc {
 		defer cancel()
 		_ = chromedp.Run(waitCtx, chromedp.WaitVisible(articleReadySelector, chromedp.ByQuery))
 		return nil
+	})
+}
+
+func navigateNoWait(url string) chromedp.ActionFunc {
+	return chromedp.ActionFunc(func(ctx context.Context) error {
+		_, _, _, _, err := page.Navigate(url).Do(ctx)
+		return err
 	})
 }
 
