@@ -10,14 +10,14 @@ CLI tool to browse and read The Economist articles.
 ## Commands
 
 ```bash
+# Interactive browse (TUI, human-only)
+economist browse [section]
+
 # Headlines (default section: leaders)
-economist headlines [section] [-n count] [-s search]
+economist headlines [section] [-n count] [-s search] [--json|--plain]
 
 # Read full article
-economist read [url|-] [--raw]
-
-# Debug (dump HTML to temp file)
-economist --debug read <url>
+economist read [url|-] [--raw] [--wrap N]
 
 # Login (one-time, opens browser)
 economist login
@@ -66,6 +66,24 @@ echo "https://www.economist.com/..." | economist read -
 2. Log in to Economist account
 3. Browser closes automatically when login detected
 4. Cookies saved to `~/.config/economist-cli/`
+
+## Agent Usage
+
+```bash
+# Get headlines as JSON (for parsing)
+economist headlines finance --json
+
+# Get first headline URL
+economist headlines finance --json | jq -r '.[0].url'
+
+# Read first headline
+economist headlines finance --json | jq -r '.[0].url' | xargs economist read --raw
+
+# Plain output (title<TAB>url)
+economist headlines finance --plain
+```
+
+Note: `browse` requires a TTY and won't work in agent context. Use `headlines --json` instead.
 
 ## Notes
 

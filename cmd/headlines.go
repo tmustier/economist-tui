@@ -6,9 +6,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
+	"golang.org/x/term"
 )
 
 var (
@@ -72,7 +74,7 @@ func fetchHeadlines(section string) ([]rss.Item, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		title := fmt.Sprintf("🔍 Search results for \"%s\" in %s:", headlinesSearch, section)
+		title := fmt.Sprintf("Search: \"%s\" in %s", headlinesSearch, section)
 		return items, title, nil
 	}
 
@@ -80,7 +82,7 @@ func fetchHeadlines(section string) ([]rss.Item, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	title := fmt.Sprintf("📰 %s", strings.TrimSpace(feed.Channel.Title))
+	title := strings.TrimSpace(feed.Channel.Title)
 	return feed.Channel.Items, title, nil
 }
 
@@ -129,18 +131,71 @@ func printHeadlinesPlain(items []rss.Item) {
 	}
 }
 
+func getTermWidth() int {
+	if w, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil && w > 0 {
+		return w
+	}
+	return 100
+}
+
 func printHeadlines(items []rss.Item, title string) {
+	width := getTermWidth()
+
+	// Styles
+	titleStyle := lipgloss.NewStyle().Bold(true)
+	dimStyle := lipgloss.NewStyle().Faint(true)
+	if noColor {
+		titleStyle = lipgloss.NewStyle()
+		dimStyle = lipgloss.NewStyle()
+	}
+
+	// Header
 	fmt.Printf("%s\n\n", title)
 
 	items = limitItems(items)
 
 	for i, item := range items {
-		fmt.Printf("%d. %s\n", i+1, item.CleanTitle())
-		if desc := item.CleanDescription(); desc != "" {
-			fmt.Printf("   %s\n", desc)
+		num := fmt.Sprintf("%2d. ", i+1)
+		headline := item.CleanTitle()
+		date := item.FormattedDate()
+
+		// Calculate padding for right-aligned date
+		// Format: "NN. Title...                    Date"
+		contentWidth := width - len(num) - len(date) - 2
+		if contentWidth < 20 {
+			contentWidth = 20
 		}
-		fmt.Printf("   📅 %s\n", item.FormattedDate())
-		fmt.Printf("   🔗 %s\n\n", item.Link)
+
+		// Truncate title if too long
+		displayTitle := headline
+		if len(headline) > contentWidth {
+			displayTitle = headline[:contentWidth-3] + "..."
+		}
+
+		// Build the line with right-aligned date
+		padding := contentWidth - len(displayTitle)
+		if padding < 1 {
+			padding = 1
+		}
+
+		fmt.Printf("%s%s%s%s\n",
+			num,
+			titleStyle.Render(displayTitle),
+			strings.Repeat(" ", padding),
+			dimStyle.Render(date),
+		)
+
+		// Description (indented)
+		if desc := item.CleanDescription(); desc != "" {
+			descWidth := width - 4
+			if len(desc) > descWidth {
+				desc = desc[:descWidth-3] + "..."
+			}
+			fmt.Printf("    %s\n", desc)
+		}
+
+		// URL (dimmed, indented)
+		fmt.Printf("    %s\n\n", dimStyle.Render(item.Link))
 	}
 
 	if len(items) == 0 {

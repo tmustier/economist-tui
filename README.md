@@ -32,7 +32,10 @@ cp economist ~/bin/
 ## Quick Start
 
 ```bash
-# Browse headlines
+# Interactive browsing (TUI)
+economist browse finance
+
+# Browse headlines (non-interactive)
 economist headlines leaders
 economist headlines finance -n 5
 
@@ -44,9 +47,6 @@ economist login
 
 # Read an article
 economist read "https://www.economist.com/finance-and-economics/2026/01/19/article-slug"
-
-# Debug (dump HTML for parser troubleshooting)
-economist --debug read "https://www.economist.com/finance-and-economics/2026/01/19/article-slug"
 ```
 
 ## Commands
@@ -58,6 +58,16 @@ economist --debug read "https://www.economist.com/finance-and-economics/2026/01/
 | `--version` | Print version and exit |
 | `--debug` | Dump raw HTML to a temp file for parser troubleshooting |
 | `--no-color` | Disable color/styled output |
+
+### `economist browse [section]`
+
+Interactive TUI for browsing headlines and reading articles.
+
+- `↑`/`↓` or `j`/`k` to navigate
+- `Enter` to read selected article
+- `q` to quit
+
+Requires an interactive terminal. For scripts, use `headlines --json`.
 
 ### `economist headlines [section]`
 
@@ -96,6 +106,27 @@ List all available sections with aliases.
 ### `economist --version`
 
 Print version and exit.
+
+## Agent / Script Usage
+
+The CLI is designed for both human and programmatic use:
+
+```bash
+# Get headlines as JSON
+economist headlines finance --json
+
+# Get first headline URL
+economist headlines finance --json | jq -r '.[0].url'
+
+# Read first headline
+economist headlines finance --json | jq -r '.[0].url' | xargs economist read --raw
+
+# Plain output for simple parsing
+economist headlines finance --plain | head -1 | cut -f2
+
+# With fzf for interactive selection
+economist headlines finance --plain | fzf | cut -f2 | xargs economist read
+```
 
 ## Configuration
 
