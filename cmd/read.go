@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
@@ -70,22 +71,59 @@ func runRead(cmd *cobra.Command, args []string) error {
 }
 
 func fetchArticle(url string) (*article.Article, error) {
-	if !debugMode {
-		ctx, cancel := context.WithTimeout(context.Background(), browser.FetchTimeout)
-		defer cancel()
-		if art, err := daemon.Fetch(ctx, url, false); err == nil {
-			return validateArticle(art)
-		} else if !errors.Is(err, daemon.ErrNotRunning) {
-			return nil, err
-		}
+	tracef("read: start url=%s", url)
+
+	art, err := fetchArticleDaemon(url)
+	if err == nil {
+		tracef("read: daemon fetch ok")
+		return validateArticle(art)
+	}
+	if !errors.Is(err, daemon.ErrNotRunning) {
+		tracef("read: daemon fetch error: %v", err)
+		return nil, err
 	}
 
-	art, err := fetchArticleLocal(url)
+	tracef("read: daemon unavailable, using local fetch")
+	art, err = fetchArticleLocal(url)
 	if err != nil {
 		return nil, err
 	}
 
 	return validateArticle(art)
+}
+
+func fetchArticleDaemon(url string) (*article.Article, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), browser.FetchTimeout)
+	defer cancel()
+
+	tracef("read: trying daemon fetch")
+	start := time.Now()
+	art, err := daemon.Fetch(ctx, url, debugMode)
+	if err == nil {
+		tracef("read: daemon response in %s", time.Since(start))
+		return art, nil
+	}
+	if !errors.Is(err, daemon.ErrNotRunning) {
+		return nil, err
+	}
+
+	tracef("read: daemon not running, starting background")
+	_ = daemon.EnsureBackground()
+
+	readyCtx, readyCancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer readyCancel()
+	if daemon.WaitForReady(readyCtx, 200*time.Millisecond) {
+		tracef("read: daemon ready, retry fetch")
+		art, err = daemon.Fetch(ctx, url, debugMode)
+		if err == nil {
+			tracef("read: daemon response after wait in %s", time.Since(start))
+			return art, nil
+		}
+		return nil, err
+	}
+
+	tracef("read: daemon not ready after wait")
+	return nil, daemon.ErrNotRunning
 }
 
 func fetchArticleLocal(url string) (*article.Article, error) {

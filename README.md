@@ -118,7 +118,7 @@ Fetch and display a full article. Use `-` or stdin to pass a URL.
 
 Requires login for full content.
 
-When `--debug` is set, the raw HTML is saved to a temp file, the path is printed to stderr, and fetch timings are logged.
+When `--debug` is set, the raw HTML is saved to a temp file, the path is printed to stderr, and step-by-step timing logs (with timestamps) are emitted.
 
 ### `economist login`
 

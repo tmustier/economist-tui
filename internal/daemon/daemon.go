@@ -71,6 +71,26 @@ func Status(ctx context.Context) (time.Duration, bool, error) {
 	return 0, false, err
 }
 
+func WaitForReady(ctx context.Context, interval time.Duration) bool {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		_, running, err := Status(ctx)
+		if err != nil {
+			return false
+		}
+		if running {
+			return true
+		}
+		select {
+		case <-ctx.Done():
+			return false
+		case <-ticker.C:
+		}
+	}
+}
+
 func Shutdown(ctx context.Context) error {
 	client, err := newClient()
 	if err != nil {

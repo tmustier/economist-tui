@@ -255,7 +255,8 @@ func debugf(enabled bool, format string, args ...any) {
 	if !enabled {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "debug: "+format+"\n", args...)
+	ts := time.Now().Format(time.RFC3339Nano)
+	fmt.Fprintf(os.Stderr, "debug %s "+format+"\n", append([]any{ts}, args...)...)
 }
 
 func (a *Article) ToMarkdown() string {

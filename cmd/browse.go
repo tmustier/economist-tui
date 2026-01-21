@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -39,7 +41,19 @@ func runBrowse(cmd *cobra.Command, args []string) error {
 		return appErrors.NewUserError("browse requires an interactive terminal - use 'headlines --json' for scripts")
 	}
 
-	_ = daemon.EnsureBackground()
+	tracef("browse: ensure daemon")
+	if err := daemon.EnsureBackground(); err != nil {
+		tracef("browse: daemon start error: %v", err)
+	}
+	if debugMode {
+		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
+		if latency, running, err := daemon.Status(ctx); err == nil {
+			tracef("browse: daemon status running=%t latency=%s", running, latency)
+		} else {
+			tracef("browse: daemon status error: %v", err)
+		}
+	}
 
 	section := "leaders"
 	if len(args) > 0 {
