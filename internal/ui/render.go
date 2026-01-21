@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/reflow/wordwrap"
-	"github.com/muesli/termenv"
 	"github.com/tmustier/economist-cli/internal/article"
 )
 
@@ -16,7 +15,6 @@ const (
 	columnGap       = 4
 	minColumnWidth  = 32
 	baseWrapWidth   = 2000
-	bodyIndent      = 2
 	headerIndentMin = 0
 )
 
@@ -85,14 +83,8 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 		return markdown, nil
 	}
 
-	styles := glamour.DarkStyleConfig
-	if !termenv.HasDarkBackground() {
-		styles = glamour.LightStyleConfig
-	}
-	styles.Document.Margin = uintPtr(0)
-
 	optsList := []glamour.TermRendererOption{
-		glamour.WithStyles(styles),
+		glamour.WithAutoStyle(),
 		glamour.WithWordWrap(baseWrapWidth),
 	}
 
@@ -111,13 +103,6 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 
 func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOptions) string {
 	contentWidth := resolveContentWidth(opts)
-	indent := bodyIndent
-	if contentWidth <= indent {
-		indent = 0
-	} else {
-		contentWidth -= indent
-	}
-
 	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
 
 	wrapWidth := contentWidth
@@ -136,10 +121,6 @@ func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOpti
 
 	if !opts.NoColor {
 		body = HighlightTrailingMarker(body, styles)
-	}
-
-	if indent > 0 {
-		body = IndentBlock(body, indent)
 	}
 
 	return body
@@ -278,8 +259,4 @@ func leadingIndent(line string) int {
 		}
 	}
 	return indent
-}
-
-func uintPtr(v uint) *uint {
-	return &v
 }
