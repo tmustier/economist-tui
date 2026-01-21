@@ -315,11 +315,19 @@ func (m Model) articleRenderOptions() ui.ArticleRenderOptions {
 		termWidth = ui.DefaultWidth
 	}
 
+	wrapWidth := 0
+	center := false
+	if !m.twoColumn {
+		wrapWidth = ui.ReaderContentWidth(termWidth)
+		center = true
+	}
+
 	return ui.ArticleRenderOptions{
 		NoColor:   m.opts.NoColor,
 		PlainBody: true,
-		WrapWidth: 0,
+		WrapWidth: wrapWidth,
 		TermWidth: termWidth,
+		Center:    center,
 		TwoColumn: m.twoColumn,
 	}
 }

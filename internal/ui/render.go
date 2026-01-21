@@ -25,12 +25,16 @@ type ArticleRenderOptions struct {
 	PlainBody bool
 	WrapWidth int
 	TermWidth int
+	MaxWidth  int
+	Center    bool
 	TwoColumn bool
 }
 
 type ArticleLayout struct {
+	TermWidth    int
 	ContentWidth int
 	Indent       int
+	OuterPadding int
 	WrapWidth    int
 	ColumnWidth  int
 	UseColumns   bool
@@ -64,19 +68,27 @@ func RenderArticle(art *article.Article, opts ArticleRenderOptions) (string, err
 	return header + body + footer, nil
 }
 
-func resolveContentWidth(opts ArticleRenderOptions) int {
-	if opts.WrapWidth > 0 {
-		return opts.WrapWidth
-	}
+func resolveTerminalWidth(opts ArticleRenderOptions) int {
 	if opts.TermWidth > 0 {
 		return opts.TermWidth
 	}
 	return TermWidth(int(os.Stdout.Fd()))
 }
 
+func resolveContentWidth(opts ArticleRenderOptions) int {
+	if opts.WrapWidth > 0 {
+		return opts.WrapWidth
+	}
+	termWidth := resolveTerminalWidth(opts)
+	if opts.MaxWidth > 0 && termWidth > opts.MaxWidth {
+		return opts.MaxWidth
+	}
+	return termWidth
+}
+
 func ArticleIndent(opts ArticleRenderOptions) int {
 	layout := resolveArticleLayout(opts)
-	return layout.Indent
+	return layout.Indent + layout.OuterPadding
 }
 
 func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
@@ -94,22 +106,35 @@ func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
 }
 
 func resolveArticleLayout(opts ArticleRenderOptions) ArticleLayout {
+	termWidth := resolveTerminalWidth(opts)
 	contentWidth := resolveContentWidth(opts)
-	indent := 0
-	if contentWidth > bodyIndent {
-		indent = bodyIndent
-		contentWidth -= indent
+	if contentWidth < 0 {
+		contentWidth = 0
 	}
 
-	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
-	wrapWidth := contentWidth
+	indent := 0
+	availableWidth := contentWidth
+	if contentWidth > bodyIndent {
+		indent = bodyIndent
+		availableWidth = contentWidth - indent
+	}
+
+	columnWidth, useColumns := resolveColumnWidth(availableWidth, opts.TwoColumn)
+	wrapWidth := availableWidth
 	if useColumns {
 		wrapWidth = columnWidth
 	}
 
+	outerPadding := 0
+	if opts.Center && termWidth > contentWidth {
+		outerPadding = (termWidth - contentWidth) / 2
+	}
+
 	return ArticleLayout{
+		TermWidth:    termWidth,
 		ContentWidth: contentWidth,
 		Indent:       indent,
+		OuterPadding: outerPadding,
 		WrapWidth:    wrapWidth,
 		ColumnWidth:  columnWidth,
 		UseColumns:   useColumns,
@@ -122,10 +147,10 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 	}
 
 	styles := glamour.DarkStyleConfig
-	bodyColor := BodyColorDark
+	bodyColor := BodyColorDarkANSI
 	if !termenv.HasDarkBackground() {
 		styles = glamour.LightStyleConfig
-		bodyColor = BodyColorLight
+		bodyColor = BodyColorLightANSI
 	}
 	styles.Document.Margin = uintPtr(0)
 	styles.Document.Color = &bodyColor
@@ -150,7 +175,8 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 
 func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOptions) string {
 	layout := resolveArticleLayout(opts)
-	indent := layout.Indent
+	innerIndent := layout.Indent
+	outerPadding := layout.OuterPadding
 	columnWidth := layout.ColumnWidth
 	useColumns := layout.UseColumns
 	wrapWidth := layout.WrapWidth
@@ -168,8 +194,9 @@ func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOpti
 		body = HighlightTrailingMarker(body, styles)
 	}
 
-	if indent > 0 {
-		body = IndentBlock(body, indent)
+	totalIndent := innerIndent + outerPadding
+	if totalIndent > 0 {
+		body = IndentBlock(body, totalIndent)
 	}
 
 	if opts.PlainBody && !opts.NoColor {

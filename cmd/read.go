@@ -73,12 +73,20 @@ func runRead(cmd *cobra.Command, args []string) error {
 }
 
 func outputArticle(art *article.Article) error {
-	out, err := ui.RenderArticle(art, ui.ArticleRenderOptions{
+	opts := ui.ArticleRenderOptions{
 		Raw:       rawOutput,
 		NoColor:   noColor,
 		WrapWidth: wrapWidth,
 		TwoColumn: columns == 2,
-	})
+	}
+	if wrapWidth == 0 && columns == 1 && ui.IsTerminal(int(os.Stdout.Fd())) {
+		termWidth := ui.TermWidth(int(os.Stdout.Fd()))
+		opts.TermWidth = termWidth
+		opts.WrapWidth = ui.ReaderContentWidth(termWidth)
+		opts.Center = true
+	}
+
+	out, err := ui.RenderArticle(art, opts)
 	if err != nil {
 		return err
 	}
