@@ -192,6 +192,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.filteredItems)-1 {
 				m.cursor++
 			}
+		case tea.KeyLeft:
+			page := m.pageSize()
+			m.cursor = max(0, m.cursor-page)
+		case tea.KeyRight:
+			page := m.pageSize()
+			m.cursor = min(m.cursor+page, len(m.filteredItems)-1)
 		case tea.KeyHome:
 			m.cursor = 0
 		case tea.KeyEnd:
@@ -238,14 +244,7 @@ func (m model) View() string {
 	if len(items) == 0 {
 		b.WriteString("\n" + styles.Dim.Render("  No matching articles") + "\n")
 	} else {
-		// Calculate visible items based on terminal height
-		reservedLines := 7 // header + search + footer
-		visibleItems := m.height - reservedLines
-		if visibleItems < 5 {
-			visibleItems = 5
-		}
-		itemHeight := 3 // title + description + spacer
-		maxVisible := visibleItems / itemHeight
+		maxVisible := m.pageSize()
 		if maxVisible > len(items) {
 			maxVisible = len(items)
 		}
@@ -263,16 +262,18 @@ func (m model) View() string {
 			end = len(items)
 		}
 
-		numWidth := len(fmt.Sprintf("%d", len(items)))
-		prefix := fmt.Sprintf("%*d. ", numWidth, len(items))
+		numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
+		prefix := fmt.Sprintf("%*d. ", numWidth, len(m.allItems))
 		layout := ui.NewHeadlineLayout(m.width, len(prefix))
 
 		// Items
 		for i := start; i < end; i++ {
 			item := items[i]
 			lineStyle := styles.Title
+			dateStyle := styles.Dim
 			if i == m.cursor {
 				lineStyle = styles.Selected
+				dateStyle = styles.Selected
 			}
 
 			num := fmt.Sprintf("%*d. ", numWidth, i+1)
@@ -284,7 +285,7 @@ func (m model) View() string {
 			b.WriteString(fmt.Sprintf("%s%s%s\n",
 				num,
 				lineStyle.Render(paddedTitle),
-				styles.Dim.Render(date),
+				dateStyle.Render(date),
 			))
 
 			desc := item.CleanDescription()
@@ -308,10 +309,24 @@ func (m model) View() string {
 
 	// Footer
 	b.WriteString("\n\n")
-	help := styles.Help.Render("↑/↓ navigate • enter read • type to search • esc clear • q quit")
+	help := styles.Help.Render("↑/↓ navigate • ←/→ page • enter read • type to search • esc clear • q quit")
 	b.WriteString(help)
 
 	return b.String()
+}
+
+func (m model) pageSize() int {
+	reservedLines := 7 // header + search + footer
+	visibleItems := m.height - reservedLines
+	if visibleItems < 5 {
+		visibleItems = 5
+	}
+	itemHeight := 3 // title + description + spacer
+	page := visibleItems / itemHeight
+	if page < 1 {
+		page = 1
+	}
+	return page
 }
 
 func min(a, b int) int {

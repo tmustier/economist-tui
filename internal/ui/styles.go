@@ -2,7 +2,7 @@ package ui
 
 import "github.com/charmbracelet/lipgloss"
 
-const HighlightColor = "196"
+const HighlightColor = "124"
 
 type BrowseStyles struct {
 	Header   lipgloss.Style
