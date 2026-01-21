@@ -195,15 +195,31 @@ func (m model) View() string {
 		}
 
 		title := item.CleanTitle()
-		maxTitleLen := m.width - 20
-		if maxTitleLen < 30 {
-			maxTitleLen = 30
-		}
-		if len(title) > maxTitleLen {
-			title = title[:maxTitleLen-3] + "..."
+		date := item.FormattedDate()
+
+		// Calculate space for right-aligned date
+		// Format: "▸ Title...                    Jan 20, 2026"
+		availableWidth := m.width - len(cursor) - len(date) - 2
+		if availableWidth < 30 {
+			availableWidth = 30
 		}
 
-		b.WriteString(fmt.Sprintf("%s%s\n", cursor, style.Render(title)))
+		displayTitle := title
+		if len(title) > availableWidth {
+			displayTitle = title[:availableWidth-3] + "..."
+		}
+
+		padding := availableWidth - len(displayTitle)
+		if padding < 1 {
+			padding = 1
+		}
+
+		b.WriteString(fmt.Sprintf("%s%s%s%s\n",
+			cursor,
+			style.Render(displayTitle),
+			strings.Repeat(" ", padding),
+			dimStyle.Render(date),
+		))
 
 		desc := item.CleanDescription()
 		if desc != "" {
@@ -216,7 +232,6 @@ func (m model) View() string {
 			}
 			b.WriteString(fmt.Sprintf("    %s\n", dimStyle.Render(desc)))
 		}
-		b.WriteString(fmt.Sprintf("    %s\n", dimStyle.Render(item.FormattedDate())))
 	}
 
 	// Footer
