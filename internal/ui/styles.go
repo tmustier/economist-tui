@@ -13,6 +13,13 @@ type BrowseStyles struct {
 	Search   lipgloss.Style
 }
 
+type ArticleStyles struct {
+	Title    lipgloss.Style
+	Subtitle lipgloss.Style
+	Date     lipgloss.Style
+	Rule     lipgloss.Style
+}
+
 func NewBrowseStyles(noColor bool) BrowseStyles {
 	header := lipgloss.NewStyle().Bold(true)
 	title := lipgloss.NewStyle().Bold(true)
@@ -37,5 +44,26 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 		Dim:      dim,
 		Help:     help,
 		Search:   search,
+	}
+}
+
+func NewArticleStyles(noColor bool) ArticleStyles {
+	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(HighlightColor))
+	subtitle := lipgloss.NewStyle().Faint(true)
+	date := lipgloss.NewStyle().Faint(true)
+	rule := lipgloss.NewStyle().Faint(true)
+
+	if noColor {
+		title = lipgloss.NewStyle().Bold(true)
+		subtitle = lipgloss.NewStyle()
+		date = lipgloss.NewStyle()
+		rule = lipgloss.NewStyle()
+	}
+
+	return ArticleStyles{
+		Title:    title,
+		Subtitle: subtitle,
+		Date:     date,
+		Rule:     rule,
 	}
 }

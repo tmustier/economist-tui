@@ -17,6 +17,7 @@ import (
 	"github.com/tmustier/economist-cli/internal/config"
 	"github.com/tmustier/economist-cli/internal/daemon"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
+	"github.com/tmustier/economist-cli/internal/ui"
 )
 
 var (
@@ -146,9 +147,16 @@ func validateArticle(art *article.Article) (*article.Article, error) {
 }
 
 func outputArticle(art *article.Article) error {
-	md := art.ToMarkdown()
+	if rawOutput {
+		fmt.Println(art.ToMarkdown())
+		return nil
+	}
 
-	if rawOutput || noColor {
+	styles := ui.NewArticleStyles(noColor)
+	printArticleHeader(art, styles)
+
+	md := articleBodyMarkdown(art)
+	if noColor {
 		fmt.Println(md)
 		return nil
 	}
@@ -172,6 +180,31 @@ func outputArticle(art *article.Article) error {
 
 	fmt.Println(out)
 	return nil
+}
+
+func printArticleHeader(art *article.Article, styles ui.ArticleStyles) {
+	if art.Title != "" {
+		fmt.Println(styles.Title.Render(art.Title))
+	}
+	if art.Subtitle != "" {
+		fmt.Println(styles.Subtitle.Render(art.Subtitle))
+	}
+	if art.DateLine != "" {
+		fmt.Println(styles.Date.Render(art.DateLine))
+	}
+	fmt.Println()
+	fmt.Println(styles.Rule.Render("--------"))
+	fmt.Println()
+}
+
+func articleBodyMarkdown(art *article.Article) string {
+	var sb strings.Builder
+	if art.Content != "" {
+		sb.WriteString(art.Content)
+	}
+	sb.WriteString("\n\n---\n\n")
+	sb.WriteString(fmt.Sprintf("🔗 %s\n", art.URL))
+	return sb.String()
 }
 
 func resolveURL(args []string) (string, error) {

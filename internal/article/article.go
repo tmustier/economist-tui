@@ -362,7 +362,7 @@ func (a *Article) ToMarkdown() string {
 	}
 
 	if a.DateLine != "" {
-		sb.WriteString(fmt.Sprintf("📅 %s\n\n", a.DateLine))
+		sb.WriteString(fmt.Sprintf("%s\n\n", a.DateLine))
 	}
 
 	sb.WriteString("---\n\n")
