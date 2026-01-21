@@ -184,6 +184,13 @@ func (m model) View() string {
 		end = len(m.items)
 	}
 
+	// Fixed column width for titles (date always starts at same position)
+	dateWidth := 14 // "Jan 20, 2026" = 12 chars + 2 padding
+	titleColWidth := m.width - len("▸ ") - dateWidth
+	if titleColWidth < 30 {
+		titleColWidth = 30
+	}
+
 	// Items
 	for i := start; i < end; i++ {
 		item := m.items[i]
@@ -197,27 +204,17 @@ func (m model) View() string {
 		title := item.CleanTitle()
 		date := item.FormattedDate()
 
-		// Calculate space for right-aligned date
-		// Format: "▸ Title...                    Jan 20, 2026"
-		availableWidth := m.width - len(cursor) - len(date) - 2
-		if availableWidth < 30 {
-			availableWidth = 30
-		}
-
+		// Truncate or pad title to fixed width
 		displayTitle := title
-		if len(title) > availableWidth {
-			displayTitle = title[:availableWidth-3] + "..."
+		if len(title) > titleColWidth {
+			displayTitle = title[:titleColWidth-3] + "..."
 		}
+		// Pad to fixed width so dates align
+		displayTitle = fmt.Sprintf("%-*s", titleColWidth, displayTitle)
 
-		padding := availableWidth - len(displayTitle)
-		if padding < 1 {
-			padding = 1
-		}
-
-		b.WriteString(fmt.Sprintf("%s%s%s%s\n",
+		b.WriteString(fmt.Sprintf("%s%s%s\n",
 			cursor,
 			style.Render(displayTitle),
-			strings.Repeat(" ", padding),
 			dimStyle.Render(date),
 		))
 

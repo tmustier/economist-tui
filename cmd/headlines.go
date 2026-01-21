@@ -154,34 +154,29 @@ func printHeadlines(items []rss.Item, title string) {
 
 	items = limitItems(items)
 
+	// Fixed column widths for alignment
+	numWidth := 4                             // " 1. "
+	dateWidth := 14                           // "Jan 20, 2026" + padding
+	titleColWidth := width - numWidth - dateWidth
+	if titleColWidth < 30 {
+		titleColWidth = 30
+	}
+
 	for i, item := range items {
 		num := fmt.Sprintf("%2d. ", i+1)
 		headline := item.CleanTitle()
 		date := item.FormattedDate()
 
-		// Calculate padding for right-aligned date
-		// Format: "NN. Title...                    Date"
-		contentWidth := width - len(num) - len(date) - 2
-		if contentWidth < 20 {
-			contentWidth = 20
-		}
-
-		// Truncate title if too long
+		// Truncate or pad title to fixed width
 		displayTitle := headline
-		if len(headline) > contentWidth {
-			displayTitle = headline[:contentWidth-3] + "..."
+		if len(headline) > titleColWidth {
+			displayTitle = headline[:titleColWidth-3] + "..."
 		}
+		displayTitle = fmt.Sprintf("%-*s", titleColWidth, displayTitle)
 
-		// Build the line with right-aligned date
-		padding := contentWidth - len(displayTitle)
-		if padding < 1 {
-			padding = 1
-		}
-
-		fmt.Printf("%s%s%s%s\n",
+		fmt.Printf("%s%s%s\n",
 			num,
 			titleStyle.Render(displayTitle),
-			strings.Repeat(" ", padding),
 			dimStyle.Render(date),
 		)
 
