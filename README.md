@@ -21,11 +21,13 @@ A command-line tool to browse and read articles from The Economist.
 ```bash
 git clone https://github.com/tmustier/economist-cli
 cd economist-cli
-go build -o economist .
 
-# Install to PATH
-cp economist /usr/local/bin/
-# or
+# Build and install (auto-signs on macOS)
+make install
+
+# Or manually:
+go build -o economist .
+codesign -s - economist  # macOS only
 cp economist ~/bin/
 ```
 
