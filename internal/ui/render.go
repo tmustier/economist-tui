@@ -22,6 +22,7 @@ const (
 type ArticleRenderOptions struct {
 	Raw       bool
 	NoColor   bool
+	PlainBody bool
 	WrapWidth int
 	TermWidth int
 	TwoColumn bool
@@ -88,7 +89,7 @@ func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
 }
 
 func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, error) {
-	if opts.NoColor {
+	if opts.NoColor || opts.PlainBody {
 		return markdown, nil
 	}
 
@@ -218,17 +219,6 @@ func trimTrailingBlankLines(lines []string) []string {
 	return lines[:end]
 }
 
-func DetectIndent(text string) int {
-	lines := strings.Split(text, "\n")
-	for _, line := range lines {
-		if isLineBlank(line) {
-			continue
-		}
-		return leadingIndent(line)
-	}
-	return 0
-}
-
 func IndentBlock(text string, indent int) string {
 	if indent <= 0 {
 		return text
@@ -263,30 +253,6 @@ func isLineBlank(line string) bool {
 		}
 	}
 	return true
-}
-
-func leadingIndent(line string) int {
-	indent := 0
-	inANSI := false
-	for _, r := range line {
-		switch {
-		case inANSI:
-			if ansi.IsTerminator(r) {
-				inANSI = false
-			}
-			continue
-		case r == ansi.Marker:
-			inANSI = true
-			continue
-		case r == ' ':
-			indent++
-		case r == '\t':
-			indent += 4
-		default:
-			return indent
-		}
-	}
-	return indent
 }
 
 func uintPtr(v uint) *uint {

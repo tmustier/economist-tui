@@ -279,7 +279,7 @@ func (m *Model) refreshArticleLines() {
 
 	if m.articleBase == "" {
 		baseStart := time.Now()
-		base, err := ui.RenderArticleBodyBase(ui.ArticleBodyMarkdown(m.article), ui.ArticleRenderOptions{NoColor: m.opts.NoColor})
+		base, err := ui.RenderArticleBodyBase(ui.ArticleBodyMarkdown(m.article), ui.ArticleRenderOptions{NoColor: m.opts.NoColor, PlainBody: true})
 		m.baseDuration = time.Since(baseStart)
 		if err != nil {
 			m.articleErr = err
@@ -294,6 +294,7 @@ func (m *Model) refreshArticleLines() {
 	reflowStart := time.Now()
 	body := ui.ReflowArticleBody(m.articleBase, styles, ui.ArticleRenderOptions{
 		NoColor:   m.opts.NoColor,
+		PlainBody: true,
 		WrapWidth: 0,
 		TermWidth: termWidth,
 		TwoColumn: m.twoColumn,
@@ -302,7 +303,7 @@ func (m *Model) refreshArticleLines() {
 	logging.Debugf(m.opts.Debug, "browse: article reflow %s", m.reflowDuration)
 
 	header := ui.RenderArticleHeader(m.article, styles)
-	indent := ui.DetectIndent(body)
+	indent := ui.ArticleIndent(ui.ArticleRenderOptions{TermWidth: termWidth, TwoColumn: m.twoColumn})
 	if indent > 0 {
 		header = ui.IndentBlock(header, indent)
 	}
