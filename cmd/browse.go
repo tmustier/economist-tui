@@ -53,7 +53,12 @@ func runBrowse(cmd *cobra.Command, args []string) error {
 		items = items[:50]
 	}
 
-	m := initialModel(items, section)
+	sectionTitle := strings.TrimSpace(feed.Channel.Title)
+	if sectionTitle == "" {
+		sectionTitle = section
+	}
+
+	m := initialModel(items, sectionTitle)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	finalModel, err := p.Run()
@@ -86,7 +91,7 @@ func readArticle(url string) error {
 type model struct {
 	allItems      []rss.Item
 	filteredItems []rss.Item
-	section       string
+	sectionTitle  string
 	cursor        int
 	selected      *rss.Item
 	width         int
@@ -95,12 +100,12 @@ type model struct {
 	searchQuery   string
 }
 
-func initialModel(items []rss.Item, section string) model {
+func initialModel(items []rss.Item, sectionTitle string) model {
 	w, h := ui.TermSize(int(os.Stdout.Fd()))
 	return model{
 		allItems:      items,
 		filteredItems: items,
-		section:       section,
+		sectionTitle:  sectionTitle,
 		width:         w,
 		height:        h,
 	}
@@ -203,16 +208,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	// Styles
-	titleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
-	selectedStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("212"))
+	headerStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
+	titleStyle := lipgloss.NewStyle().Bold(true)
+	selectedStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("196"))
 	dimStyle := lipgloss.NewStyle().Faint(true)
 	helpStyle := lipgloss.NewStyle().Faint(true)
 	searchStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("220"))
 
+	if noColor {
+		headerStyle = lipgloss.NewStyle().Bold(true)
+		titleStyle = lipgloss.NewStyle().Bold(true)
+		selectedStyle = lipgloss.NewStyle().Bold(true)
+		dimStyle = lipgloss.NewStyle()
+		helpStyle = lipgloss.NewStyle()
+		searchStyle = lipgloss.NewStyle()
+	}
+
 	var b strings.Builder
 
 	// Header
-	header := titleStyle.Render(fmt.Sprintf("The Economist — %s", m.section))
+	header := headerStyle.Render(m.sectionTitle)
 	b.WriteString(header + "\n")
 	b.WriteString(strings.Repeat("─", min(m.width, 60)) + "\n")
 
@@ -239,7 +254,7 @@ func (m model) View() string {
 		if visibleItems < 5 {
 			visibleItems = 5
 		}
-		itemHeight := 2 // lines per item (title + description)
+		itemHeight := 3 // title + description + spacer
 		maxVisible := visibleItems / itemHeight
 		if maxVisible > len(items) {
 			maxVisible = len(items)
@@ -258,38 +273,41 @@ func (m model) View() string {
 			end = len(items)
 		}
 
-		layout := ui.NewHeadlineLayout(m.width, len("▸ "))
+		numWidth := len(fmt.Sprintf("%d", len(items)))
+		prefix := fmt.Sprintf("%*d. ", numWidth, len(items))
+		layout := ui.NewHeadlineLayout(m.width, len(prefix))
 
 		// Items
 		for i := start; i < end; i++ {
 			item := items[i]
-			cursor := "  "
-			style := lipgloss.NewStyle()
+			lineStyle := titleStyle
 			if i == m.cursor {
-				cursor = "▸ "
-				style = selectedStyle
+				lineStyle = selectedStyle
 			}
 
+			num := fmt.Sprintf("%*d. ", numWidth, i+1)
 			title := item.CleanTitle()
 			date := item.FormattedDate()
 
 			paddedTitle := layout.PadTitle(title)
 
 			b.WriteString(fmt.Sprintf("%s%s%s\n",
-				cursor,
-				style.Render(paddedTitle),
+				num,
+				lineStyle.Render(paddedTitle),
 				dimStyle.Render(date),
 			))
 
 			desc := item.CleanDescription()
 			if desc != "" {
-				maxDescLen := m.width - 6
+				maxDescLen := m.width - 4
 				if maxDescLen < ui.MinTitleWidth {
 					maxDescLen = ui.MinTitleWidth
 				}
 				desc = ui.Truncate(desc, maxDescLen)
 				b.WriteString(fmt.Sprintf("    %s\n", dimStyle.Render(desc)))
 			}
+
+			b.WriteString("\n")
 		}
 
 		// Scroll indicator
