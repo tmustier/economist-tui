@@ -14,7 +14,7 @@ CLI tool to browse and read The Economist articles.
 economist headlines [section] [-n count] [-s search]
 
 # Read full article
-economist read <url> [--raw]
+economist read [url|-] [--raw]
 
 # Debug (dump HTML to temp file)
 economist --debug read <url>
@@ -30,6 +30,10 @@ economist sections
 
 `leaders`, `briefing`, `finance`, `us`, `britain`, `europe`, `middle-east`, `asia`, `china`, `americas`, `business`, `tech`, `science`, `culture`, `graphic`, `world-this-week`
 
+## Global Flags
+
+`--version`, `--debug`, `--no-color`
+
 ## Examples
 
 ```bash
@@ -39,14 +43,21 @@ economist headlines finance -n 5
 # Search for China coverage
 economist headlines finance -s "china"
 
+# JSON output
+
+economist headlines finance --json
+
 # Read article (markdown output)
 economist read "https://www.economist.com/..." --raw
 
 # Pretty terminal rendering
-economist read "https://www.economist.com/..."
+economist read "https://www.economist.com/..." --wrap 100
 
 # Debug HTML dump
 economist --debug read "https://www.economist.com/..."
+
+# Read URL from stdin
+echo "https://www.economist.com/..." | economist read -
 ```
 
 ## Auth Flow

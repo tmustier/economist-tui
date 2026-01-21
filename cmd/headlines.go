@@ -1,16 +1,21 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
+	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
 )
 
 var (
 	headlinesLimit  int
 	headlinesSearch string
+	headlinesJSON   bool
+	headlinesPlain  bool
 )
 
 var headlinesCmd = &cobra.Command{
@@ -21,7 +26,8 @@ var headlinesCmd = &cobra.Command{
 Examples:
   economist headlines leaders
   economist headlines finance -n 5
-  economist headlines business -s "AI"`,
+  economist headlines business -s "AI"
+  economist headlines finance --json`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: runHeadlines,
 }
@@ -29,6 +35,8 @@ Examples:
 func init() {
 	headlinesCmd.Flags().IntVarP(&headlinesLimit, "number", "n", 10, "Number of headlines to show")
 	headlinesCmd.Flags().StringVarP(&headlinesSearch, "search", "s", "", "Search headlines for a term")
+	headlinesCmd.Flags().BoolVar(&headlinesJSON, "json", false, "Output JSON")
+	headlinesCmd.Flags().BoolVar(&headlinesPlain, "plain", false, "Output plain text (title\turl)")
 }
 
 func runHeadlines(cmd *cobra.Command, args []string) error {
@@ -37,9 +45,21 @@ func runHeadlines(cmd *cobra.Command, args []string) error {
 		section = args[0]
 	}
 
+	if headlinesJSON && headlinesPlain {
+		return appErrors.NewUserError("--json and --plain are mutually exclusive")
+	}
+
 	items, title, err := fetchHeadlines(section)
 	if err != nil {
 		return err
+	}
+
+	if headlinesJSON {
+		return printHeadlinesJSON(items, section)
+	}
+	if headlinesPlain {
+		printHeadlinesPlain(items)
+		return nil
 	}
 
 	printHeadlines(items, title)
@@ -64,12 +84,55 @@ func fetchHeadlines(section string) ([]rss.Item, string, error) {
 	return feed.Channel.Items, title, nil
 }
 
+func limitItems(items []rss.Item) []rss.Item {
+	if headlinesLimit > 0 && len(items) > headlinesLimit {
+		return items[:headlinesLimit]
+	}
+	return items
+}
+
+type headlineOutput struct {
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	Date        string `json:"date"`
+	PubDate     string `json:"pub_date"`
+	URL         string `json:"url"`
+	Section     string `json:"section"`
+}
+
+func printHeadlinesJSON(items []rss.Item, section string) error {
+	items = limitItems(items)
+	out := make([]headlineOutput, 0, len(items))
+	for _, item := range items {
+		out = append(out, headlineOutput{
+			Title:       item.CleanTitle(),
+			Description: item.CleanDescription(),
+			Date:        item.FormattedDate(),
+			PubDate:     item.PubDate,
+			URL:         item.Link,
+			Section:     section,
+		})
+	}
+
+	data, err := json.Marshal(out)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write(append(data, '\n'))
+	return err
+}
+
+func printHeadlinesPlain(items []rss.Item) {
+	items = limitItems(items)
+	for _, item := range items {
+		fmt.Printf("%s\t%s\n", item.CleanTitle(), item.Link)
+	}
+}
+
 func printHeadlines(items []rss.Item, title string) {
 	fmt.Printf("%s\n\n", title)
 
-	if headlinesLimit > 0 && len(items) > headlinesLimit {
-		items = items[:headlinesLimit]
-	}
+	items = limitItems(items)
 
 	for i, item := range items {
 		fmt.Printf("%d. %s\n", i+1, item.CleanTitle())

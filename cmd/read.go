@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
@@ -11,10 +14,13 @@ import (
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 )
 
-var rawOutput bool
+var (
+	rawOutput bool
+	wrapWidth int
+)
 
 var readCmd = &cobra.Command{
-	Use:   "read <url>",
+	Use:   "read [url|-]",
 	Short: "Read an article",
 	Long: `Fetch and display a full article in the terminal.
 
@@ -22,17 +28,22 @@ Requires login first: economist login
 
 Examples:
   economist read https://www.economist.com/leaders/2026/01/15/some-article
-  economist read <url> --raw`,
-	Args: cobra.ExactArgs(1),
+  economist read <url> --raw
+  echo "https://www.economist.com/..." | economist read -`,
+	Args: cobra.RangeArgs(0, 1),
 	RunE: runRead,
 }
 
 func init() {
 	readCmd.Flags().BoolVar(&rawOutput, "raw", false, "Output raw markdown")
+	readCmd.Flags().IntVar(&wrapWidth, "wrap", 100, "Wrap width for rendered output (0 = no wrap)")
 }
 
 func runRead(cmd *cobra.Command, args []string) error {
-	url := args[0]
+	url, err := resolveURL(args)
+	if err != nil {
+		return err
+	}
 
 	if !config.IsLoggedIn() {
 		fmt.Fprintln(os.Stderr, "⚠️  Not logged in. Run 'economist login' first.")
@@ -64,15 +75,17 @@ func runRead(cmd *cobra.Command, args []string) error {
 func outputArticle(art *article.Article) error {
 	md := art.ToMarkdown()
 
-	if rawOutput {
+	if rawOutput || noColor {
 		fmt.Println(md)
 		return nil
 	}
 
-	renderer, err := glamour.NewTermRenderer(
-		glamour.WithAutoStyle(),
-		glamour.WithWordWrap(100),
-	)
+	opts := []glamour.TermRendererOption{glamour.WithAutoStyle()}
+	if wrapWidth > 0 {
+		opts = append(opts, glamour.WithWordWrap(wrapWidth))
+	}
+
+	renderer, err := glamour.NewTermRenderer(opts...)
 	if err != nil {
 		fmt.Println(md)
 		return nil
@@ -86,4 +99,39 @@ func outputArticle(art *article.Article) error {
 
 	fmt.Println(out)
 	return nil
+}
+
+func resolveURL(args []string) (string, error) {
+	if len(args) == 1 && args[0] != "-" {
+		return args[0], nil
+	}
+
+	if len(args) == 0 || (len(args) == 1 && args[0] == "-") {
+		if !stdinHasData() {
+			return "", appErrors.NewUserError("no URL provided - pass a URL or use stdin")
+		}
+		return readURLFromStdin()
+	}
+
+	return "", appErrors.NewUserError("invalid arguments")
+}
+
+func stdinHasData() bool {
+	info, err := os.Stdin.Stat()
+	if err != nil {
+		return false
+	}
+	return info.Mode()&os.ModeCharDevice == 0
+}
+
+func readURLFromStdin() (string, error) {
+	data, err := io.ReadAll(bufio.NewReader(os.Stdin))
+	if err != nil {
+		return "", err
+	}
+	fields := strings.Fields(string(data))
+	if len(fields) == 0 {
+		return "", appErrors.NewUserError("no URL found on stdin")
+	}
+	return fields[0], nil
 }

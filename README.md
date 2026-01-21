@@ -55,7 +55,9 @@ economist --debug read "https://www.economist.com/finance-and-economics/2026/01/
 
 | Flag | Description |
 |------|-------------|
+| `--version` | Print version and exit |
 | `--debug` | Dump raw HTML to a temp file for parser troubleshooting |
+| `--no-color` | Disable color/styled output |
 
 ### `economist headlines [section]`
 
@@ -65,16 +67,19 @@ Fetch latest headlines from a section.
 |------|-------------|
 | `-n, --number` | Number of headlines (default: 10) |
 | `-s, --search` | Filter headlines by keyword |
+| `--json` | Output JSON array |
+| `--plain` | Output `title<TAB>url` |
 
 **Sections:** `leaders`, `briefing`, `finance`, `us`, `britain`, `europe`, `middle-east`, `asia`, `china`, `americas`, `business`, `tech`, `science`, `culture`, `graphic`, `world-this-week`
 
-### `economist read <url>`
+### `economist read [url|-]`
 
-Fetch and display a full article.
+Fetch and display a full article. Use `-` or stdin to pass a URL.
 
 | Flag | Description |
 |------|-------------|
 | `--raw` | Output plain markdown (no formatting) |
+| `--wrap` | Wrap width for rendered output (0 = no wrap) |
 
 Requires login for full content.
 
@@ -87,6 +92,10 @@ Opens a browser window for Economist login. Cookies are saved locally for future
 ### `economist sections`
 
 List all available sections with aliases.
+
+### `economist --version`
+
+Print version and exit.
 
 ## Configuration
 
