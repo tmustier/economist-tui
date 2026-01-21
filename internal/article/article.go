@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
@@ -33,6 +34,7 @@ type FetchOptions struct {
 }
 
 func Fetch(articleURL string, opts FetchOptions) (*Article, error) {
+	start := time.Now()
 	cfg, err := config.Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
@@ -44,9 +46,12 @@ func Fetch(articleURL string, opts FetchOptions) (*Article, error) {
 	ctx, cancel = context.WithTimeout(ctx, browser.FetchTimeout)
 	defer cancel()
 
+	debugf(opts.Debug, "context ready in %s", time.Since(start))
+
 	// Inject saved cookies (ignore errors - will just hit paywall)
 	_ = browser.InjectCookies(ctx, cfg.Cookies)
 
+	navStart := time.Now()
 	var html string
 	err = chromedp.Run(ctx,
 		chromedp.Navigate(articleURL),
@@ -57,8 +62,12 @@ func Fetch(articleURL string, opts FetchOptions) (*Article, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load page: %w", err)
 	}
+	debugf(opts.Debug, "page loaded in %s", time.Since(navStart))
 
+	parseStart := time.Now()
 	art, parseErr := parseArticle(html, articleURL)
+	debugf(opts.Debug, "parsed in %s", time.Since(parseStart))
+
 	if opts.Debug {
 		if path, err := writeDebugHTML(html); err == nil {
 			if art == nil {
@@ -66,6 +75,7 @@ func Fetch(articleURL string, opts FetchOptions) (*Article, error) {
 			}
 			art.DebugHTMLPath = path
 		}
+		debugf(opts.Debug, "total fetch time %s", time.Since(start))
 	}
 	if parseErr != nil {
 		return art, parseErr
@@ -124,7 +134,9 @@ func extractContent(doc *goquery.Document) string {
 		})
 	}
 
-	return strings.Join(paragraphs, "\n\n")
+	content := strings.Join(paragraphs, "\n\n")
+	content = strings.TrimSpace(content)
+	return trimTrailingMarker(content)
 }
 
 func isInsideRelatedSection(s *goquery.Selection) bool {
@@ -168,6 +180,35 @@ func isBoilerplate(text string) bool {
 	return false
 }
 
+func trimTrailingMarker(content string) string {
+	const marker = "■"
+	if !strings.Contains(content, marker) {
+		return content
+	}
+
+	paragraphs := strings.Split(content, "\n\n")
+	if len(paragraphs) == 0 {
+		return content
+	}
+
+	start := len(paragraphs) - 3
+	if start < 0 {
+		start = 0
+	}
+
+	for i := len(paragraphs) - 1; i >= start; i-- {
+		idx := strings.LastIndex(paragraphs[i], marker)
+		if idx == -1 {
+			continue
+		}
+
+		paragraphs[i] = strings.TrimSpace(paragraphs[i][:idx+len(marker)])
+		return strings.TrimSpace(strings.Join(paragraphs[:i+1], "\n\n"))
+	}
+
+	return content
+}
+
 var paywallIndicators = []string{
 	"Subscribe to read",
 	"Keep reading with a subscription",
@@ -196,6 +237,13 @@ func writeDebugHTML(html string) (string, error) {
 	}
 
 	return file.Name(), nil
+}
+
+func debugf(enabled bool, format string, args ...any) {
+	if !enabled {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "debug: "+format+"\n", args...)
 }
 
 func (a *Article) ToMarkdown() string {

@@ -9,10 +9,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/article"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
-	"golang.org/x/term"
+	"github.com/tmustier/economist-cli/internal/search"
+	"github.com/tmustier/economist-cli/internal/ui"
 )
 
 var browseCmd = &cobra.Command{
@@ -34,7 +34,7 @@ func init() {
 }
 
 func runBrowse(cmd *cobra.Command, args []string) error {
-	if !term.IsTerminal(int(os.Stdin.Fd())) {
+	if !ui.IsTerminal(int(os.Stdin.Fd())) {
 		return appErrors.NewUserError("browse requires an interactive terminal - use 'headlines --json' for scripts")
 	}
 
@@ -73,16 +73,9 @@ func runBrowse(cmd *cobra.Command, args []string) error {
 func readArticle(url string) error {
 	fmt.Printf("Loading article...\n\n")
 
-	art, err := article.Fetch(url, article.FetchOptions{Debug: debugMode})
+	art, err := fetchArticle(url)
 	if err != nil {
-		if appErrors.IsPaywallError(err) {
-			return appErrors.NewUserError("paywall detected - run 'economist login' to read full articles")
-		}
 		return err
-	}
-
-	if art.Content == "" {
-		return appErrors.NewUserError("no article content found - try 'economist login'")
 	}
 
 	return outputArticle(art)
@@ -103,13 +96,7 @@ type model struct {
 }
 
 func initialModel(items []rss.Item, section string) model {
-	w, h, _ := term.GetSize(int(os.Stdout.Fd()))
-	if w == 0 {
-		w = 80
-	}
-	if h == 0 {
-		h = 24
-	}
+	w, h := ui.TermSize(int(os.Stdout.Fd()))
 	return model{
 		allItems:      items,
 		filteredItems: items,
@@ -129,20 +116,10 @@ func (m *model) filterItems() {
 		return
 	}
 
-	query := strings.ToLower(m.searchQuery)
-	tokens := strings.Fields(query)
-
 	var filtered []rss.Item
 	for _, item := range m.allItems {
-		text := strings.ToLower(item.CleanTitle() + " " + item.CleanDescription())
-		allMatch := true
-		for _, token := range tokens {
-			if !fuzzyContains(text, token) {
-				allMatch = false
-				break
-			}
-		}
-		if allMatch {
+		text := item.CleanTitle() + " " + item.CleanDescription()
+		if search.Match(text, m.searchQuery) {
 			filtered = append(filtered, item)
 		}
 	}
@@ -152,21 +129,6 @@ func (m *model) filterItems() {
 	if m.cursor >= len(m.filteredItems) {
 		m.cursor = max(0, len(m.filteredItems)-1)
 	}
-}
-
-// fuzzyContains checks if all characters in query appear in text in order
-func fuzzyContains(text, query string) bool {
-	if query == "" {
-		return true
-	}
-
-	queryIdx := 0
-	for i := 0; i < len(text) && queryIdx < len(query); i++ {
-		if text[i] == query[queryIdx] {
-			queryIdx++
-		}
-	}
-	return queryIdx == len(query)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -296,12 +258,7 @@ func (m model) View() string {
 			end = len(items)
 		}
 
-		// Fixed column width for titles (date always starts at same position)
-		dateWidth := 14 // "Jan 20, 2026" = 12 chars + 2 padding
-		titleColWidth := m.width - len("▸ ") - dateWidth
-		if titleColWidth < 30 {
-			titleColWidth = 30
-		}
+		layout := ui.NewHeadlineLayout(m.width, len("▸ "))
 
 		// Items
 		for i := start; i < end; i++ {
@@ -316,29 +273,21 @@ func (m model) View() string {
 			title := item.CleanTitle()
 			date := item.FormattedDate()
 
-			// Truncate or pad title to fixed width
-			displayTitle := title
-			if len(title) > titleColWidth {
-				displayTitle = title[:titleColWidth-3] + "..."
-			}
-			// Pad to fixed width so dates align
-			displayTitle = fmt.Sprintf("%-*s", titleColWidth, displayTitle)
+			paddedTitle := layout.PadTitle(title)
 
 			b.WriteString(fmt.Sprintf("%s%s%s\n",
 				cursor,
-				style.Render(displayTitle),
+				style.Render(paddedTitle),
 				dimStyle.Render(date),
 			))
 
 			desc := item.CleanDescription()
 			if desc != "" {
 				maxDescLen := m.width - 6
-				if maxDescLen < 30 {
-					maxDescLen = 30
+				if maxDescLen < ui.MinTitleWidth {
+					maxDescLen = ui.MinTitleWidth
 				}
-				if len(desc) > maxDescLen {
-					desc = desc[:maxDescLen-3] + "..."
-				}
+				desc = ui.Truncate(desc, maxDescLen)
 				b.WriteString(fmt.Sprintf("    %s\n", dimStyle.Render(desc)))
 			}
 		}

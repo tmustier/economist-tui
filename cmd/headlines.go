@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
-	"golang.org/x/term"
+	"github.com/tmustier/economist-cli/internal/ui"
 )
 
 var (
@@ -131,15 +131,8 @@ func printHeadlinesPlain(items []rss.Item) {
 	}
 }
 
-func getTermWidth() int {
-	if w, _, err := term.GetSize(int(os.Stdout.Fd())); err == nil && w > 0 {
-		return w
-	}
-	return 100
-}
-
 func printHeadlines(items []rss.Item, title string) {
-	width := getTermWidth()
+	width := ui.TermWidth(int(os.Stdout.Fd()))
 
 	// Styles
 	titleStyle := lipgloss.NewStyle().Bold(true)
@@ -154,38 +147,25 @@ func printHeadlines(items []rss.Item, title string) {
 
 	items = limitItems(items)
 
-	// Fixed column widths for alignment
-	numWidth := 4                             // " 1. "
-	dateWidth := 14                           // "Jan 20, 2026" + padding
-	titleColWidth := width - numWidth - dateWidth
-	if titleColWidth < 30 {
-		titleColWidth = 30
-	}
+	layout := ui.NewHeadlineLayout(width, len(" 1. "))
 
 	for i, item := range items {
 		num := fmt.Sprintf("%2d. ", i+1)
 		headline := item.CleanTitle()
 		date := item.FormattedDate()
 
-		// Truncate or pad title to fixed width
-		displayTitle := headline
-		if len(headline) > titleColWidth {
-			displayTitle = headline[:titleColWidth-3] + "..."
-		}
-		displayTitle = fmt.Sprintf("%-*s", titleColWidth, displayTitle)
+		paddedTitle := layout.PadTitle(headline)
 
 		fmt.Printf("%s%s%s\n",
 			num,
-			titleStyle.Render(displayTitle),
+			titleStyle.Render(paddedTitle),
 			dimStyle.Render(date),
 		)
 
 		// Description (indented)
 		if desc := item.CleanDescription(); desc != "" {
 			descWidth := width - 4
-			if len(desc) > descWidth {
-				desc = desc[:descWidth-3] + "..."
-			}
+			desc = ui.Truncate(desc, descWidth)
 			fmt.Printf("    %s\n", desc)
 		}
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/tmustier/economist-cli/internal/browser"
+	"github.com/tmustier/economist-cli/internal/search"
 )
 
 const httpTimeout = 10 * time.Second
@@ -115,7 +116,6 @@ func Search(section, query string) ([]Item, error) {
 		return nil, err
 	}
 
-	query = strings.ToLower(query)
 	var results []Item
 
 	for _, item := range rss.Channel.Items {
@@ -135,7 +135,6 @@ func resolveSection(section string) string {
 }
 
 func matchesQuery(item Item, query string) bool {
-	title := strings.ToLower(item.CleanTitle())
-	desc := strings.ToLower(item.CleanDescription())
-	return strings.Contains(title, query) || strings.Contains(desc, query)
+	text := item.CleanTitle() + " " + item.CleanDescription()
+	return search.Match(text, query)
 }

@@ -53,16 +53,9 @@ func runRead(cmd *cobra.Command, args []string) error {
 		fmt.Fprintln(os.Stderr, "")
 	}
 
-	art, err := article.Fetch(url, article.FetchOptions{Debug: debugMode})
+	art, err := fetchArticle(url)
 	if err != nil {
-		if appErrors.IsPaywallError(err) {
-			return appErrors.NewUserError("paywall detected - run 'economist login' to read full articles")
-		}
 		return err
-	}
-
-	if art.Content == "" {
-		return appErrors.NewUserError("no article content found - try 'economist login'")
 	}
 
 	if debugMode && art.DebugHTMLPath != "" {
@@ -70,6 +63,22 @@ func runRead(cmd *cobra.Command, args []string) error {
 	}
 
 	return outputArticle(art)
+}
+
+func fetchArticle(url string) (*article.Article, error) {
+	art, err := article.Fetch(url, article.FetchOptions{Debug: debugMode})
+	if err != nil {
+		if appErrors.IsPaywallError(err) {
+			return nil, appErrors.NewUserError("paywall detected - run 'economist login' to read full articles")
+		}
+		return nil, err
+	}
+
+	if art.Content == "" {
+		return nil, appErrors.NewUserError("no article content found - try 'economist login'")
+	}
+
+	return art, nil
 }
 
 func outputArticle(art *article.Article) error {

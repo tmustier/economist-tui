@@ -80,7 +80,7 @@ Fetch latest headlines from a section.
 | Flag | Description |
 |------|-------------|
 | `-n, --number` | Number of headlines (default: 10) |
-| `-s, --search` | Filter headlines by keyword |
+| `-s, --search` | Fuzzy search headlines (space-separated tokens) |
 | `--json` | Output JSON array |
 | `--plain` | Output `title<TAB>url` |
 
@@ -97,7 +97,7 @@ Fetch and display a full article. Use `-` or stdin to pass a URL.
 
 Requires login for full content.
 
-When `--debug` is set, the raw HTML is saved to a temp file and the path is printed to stderr.
+When `--debug` is set, the raw HTML is saved to a temp file, the path is printed to stderr, and fetch timings are logged.
 
 ### `economist login`
 

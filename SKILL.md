@@ -40,7 +40,7 @@ economist sections
 # Get 5 finance headlines
 economist headlines finance -n 5
 
-# Search for China coverage
+# Search for China coverage (fuzzy tokens)
 economist headlines finance -s "china"
 
 # JSON output
