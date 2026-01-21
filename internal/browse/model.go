@@ -41,6 +41,7 @@ type Model struct {
 	loading      bool
 	pendingURL   string
 	article      *article.Article
+	articleBase  string
 	articleLines []string
 	articleErr   error
 	scroll       int
@@ -125,11 +126,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			m.articleErr = msg.err
 			m.article = nil
+			m.articleBase = ""
 			m.articleLines = []string{fmt.Sprintf("Error: %v", msg.err)}
 			return m, nil
 		}
 		m.articleErr = nil
 		m.article = msg.article
+		m.articleBase = ""
 		m.refreshArticleLines()
 		return m, nil
 	case tea.KeyMsg:
@@ -178,6 +181,7 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.pendingURL = url
 			m.articleErr = nil
 			m.article = nil
+			m.articleBase = ""
 			m.articleLines = nil
 			m.scroll = 0
 			return m, fetchArticleCmd(url, m.opts.Debug)
@@ -264,20 +268,37 @@ func (m *Model) refreshArticleLines() {
 		termWidth = ui.DefaultWidth
 	}
 
-	out, err := ui.RenderArticle(m.article, ui.ArticleRenderOptions{
+	if m.articleBase == "" {
+		base, err := ui.RenderArticleBodyBase(ui.ArticleBodyMarkdown(m.article), ui.ArticleRenderOptions{NoColor: m.opts.NoColor})
+		if err != nil {
+			m.articleErr = err
+			m.articleLines = []string{fmt.Sprintf("Error: %v", err)}
+			return
+		}
+		m.articleBase = base
+	}
+
+	styles := ui.NewArticleStyles(m.opts.NoColor)
+	body := ui.ReflowArticleBody(m.articleBase, styles, ui.ArticleRenderOptions{
 		NoColor:   m.opts.NoColor,
 		WrapWidth: 0,
 		TermWidth: termWidth,
 		TwoColumn: m.twoColumn,
 	})
-	if err != nil {
-		m.articleErr = err
-		m.articleLines = []string{fmt.Sprintf("Error: %v", err)}
-		return
+
+	header := ui.RenderArticleHeader(m.article, styles)
+	indent := ui.DetectIndent(body)
+	if indent > 0 {
+		header = ui.IndentBlock(header, indent)
+	}
+
+	footer := ui.ArticleFooter(m.article, styles)
+	if indent > 0 {
+		footer = ui.IndentBlock(footer, indent)
 	}
 
 	m.articleErr = nil
-	m.articleLines = strings.Split(strings.TrimRight(out, "\n"), "\n")
+	m.articleLines = strings.Split(strings.TrimRight(header+body+footer, "\n"), "\n")
 	m.clampArticleScroll()
 }
 

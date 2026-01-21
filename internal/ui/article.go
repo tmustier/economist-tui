@@ -36,7 +36,14 @@ func ArticleBodyMarkdown(art *article.Article) string {
 	if art.Content != "" {
 		sb.WriteString(art.Content)
 	}
-	sb.WriteString("\n\n---\n\n")
+	return sb.String()
+}
+
+func ArticleFooter(art *article.Article, styles ArticleStyles) string {
+	var sb strings.Builder
+	sb.WriteString("\n\n")
+	sb.WriteString(styles.Rule.Render("--------"))
+	sb.WriteString("\n\n")
 	sb.WriteString(fmt.Sprintf("🔗 %s\n", art.URL))
 	return sb.String()
 }

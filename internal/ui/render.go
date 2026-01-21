@@ -12,8 +12,10 @@ import (
 )
 
 const (
-	columnGap      = 4
-	minColumnWidth = 32
+	columnGap       = 4
+	minColumnWidth  = 32
+	baseWrapWidth   = 2000
+	headerIndentMin = 0
 )
 
 type ArticleRenderOptions struct {
@@ -33,28 +35,23 @@ func RenderArticle(art *article.Article, opts ArticleRenderOptions) (string, err
 	header := RenderArticleHeader(art, styles)
 	markdown := ArticleBodyMarkdown(art)
 
-	contentWidth := resolveContentWidth(opts)
-	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
-
-	wrapWidth := contentWidth
-	if useColumns {
-		wrapWidth = columnWidth
-	}
-
-	body, err := renderArticleBody(markdown, wrapWidth, opts)
+	base, err := RenderArticleBodyBase(markdown, opts)
 	if err != nil {
 		return "", err
 	}
 
-	if useColumns {
-		body = columnize(body, columnWidth)
+	body := ReflowArticleBody(base, styles, opts)
+	indent := DetectIndent(body)
+	if indent > headerIndentMin {
+		header = IndentBlock(header, indent)
 	}
 
-	if !opts.NoColor {
-		body = HighlightTrailingMarker(body, styles)
+	footer := ArticleFooter(art, styles)
+	if indent > headerIndentMin {
+		footer = IndentBlock(footer, indent)
 	}
 
-	return header + body, nil
+	return header + body + footer, nil
 }
 
 func resolveContentWidth(opts ArticleRenderOptions) int {
@@ -81,17 +78,14 @@ func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
 	return width, true
 }
 
-func renderArticleBody(markdown string, width int, opts ArticleRenderOptions) (string, error) {
+func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, error) {
 	if opts.NoColor {
-		if width > 0 {
-			return wrap.String(markdown, width), nil
-		}
 		return markdown, nil
 	}
 
-	optsList := []glamour.TermRendererOption{glamour.WithAutoStyle()}
-	if width > 0 {
-		optsList = append(optsList, glamour.WithWordWrap(width))
+	optsList := []glamour.TermRendererOption{
+		glamour.WithAutoStyle(),
+		glamour.WithWordWrap(baseWrapWidth),
 	}
 
 	renderer, err := glamour.NewTermRenderer(optsList...)
@@ -107,9 +101,36 @@ func renderArticleBody(markdown string, width int, opts ArticleRenderOptions) (s
 	return out, nil
 }
 
+func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOptions) string {
+	contentWidth := resolveContentWidth(opts)
+	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
+
+	wrapWidth := contentWidth
+	if useColumns {
+		wrapWidth = columnWidth
+	}
+
+	body := base
+	if wrapWidth > 0 {
+		body = wrap.String(body, wrapWidth)
+	}
+
+	if useColumns {
+		body = columnize(body, columnWidth)
+	}
+
+	if !opts.NoColor {
+		body = HighlightTrailingMarker(body, styles)
+	}
+
+	return body
+}
+
 func columnize(text string, columnWidth int) string {
 	trimmed := strings.TrimRight(text, "\n")
 	lines := strings.Split(trimmed, "\n")
+	lines = trimLeadingBlankLines(lines)
+	lines = trimTrailingBlankLines(lines)
 	if len(lines) == 0 {
 		return text
 	}
@@ -151,4 +172,91 @@ func padRightANSI(text string, width int) string {
 		return text
 	}
 	return fmt.Sprintf("%s%s", text, strings.Repeat(" ", pad))
+}
+
+func trimLeadingBlankLines(lines []string) []string {
+	start := 0
+	for start < len(lines) && isLineBlank(lines[start]) {
+		start++
+	}
+	return lines[start:]
+}
+
+func trimTrailingBlankLines(lines []string) []string {
+	end := len(lines)
+	for end > 0 && isLineBlank(lines[end-1]) {
+		end--
+	}
+	return lines[:end]
+}
+
+func DetectIndent(text string) int {
+	lines := strings.Split(text, "\n")
+	for _, line := range lines {
+		if isLineBlank(line) {
+			continue
+		}
+		return leadingIndent(line)
+	}
+	return 0
+}
+
+func IndentBlock(text string, indent int) string {
+	if indent <= 0 {
+		return text
+	}
+	pad := strings.Repeat(" ", indent)
+	lines := strings.Split(text, "\n")
+	for i, line := range lines {
+		if line == "" {
+			continue
+		}
+		lines[i] = pad + line
+	}
+	return strings.Join(lines, "\n")
+}
+
+func isLineBlank(line string) bool {
+	inANSI := false
+	for _, r := range line {
+		switch {
+		case inANSI:
+			if ansi.IsTerminator(r) {
+				inANSI = false
+			}
+			continue
+		case r == ansi.Marker:
+			inANSI = true
+			continue
+		case r == ' ' || r == '\t':
+			continue
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+func leadingIndent(line string) int {
+	indent := 0
+	inANSI := false
+	for _, r := range line {
+		switch {
+		case inANSI:
+			if ansi.IsTerminator(r) {
+				inANSI = false
+			}
+			continue
+		case r == ansi.Marker:
+			inANSI = true
+			continue
+		case r == ' ':
+			indent++
+		case r == '\t':
+			indent += 4
+		default:
+			return indent
+		}
+	}
+	return indent
 }
