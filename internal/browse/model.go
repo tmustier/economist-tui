@@ -5,11 +5,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tmustier/economist-cli/internal/article"
 	"github.com/tmustier/economist-cli/internal/fetch"
+	"github.com/tmustier/economist-cli/internal/logging"
 	"github.com/tmustier/economist-cli/internal/rss"
 	"github.com/tmustier/economist-cli/internal/search"
 	"github.com/tmustier/economist-cli/internal/ui"
@@ -23,9 +25,10 @@ const (
 )
 
 type articleMsg struct {
-	url     string
-	article *article.Article
-	err     error
+	url           string
+	article       *article.Article
+	err           error
+	fetchDuration time.Duration
 }
 
 type Model struct {
@@ -46,6 +49,10 @@ type Model struct {
 	articleErr   error
 	scroll       int
 	twoColumn    bool
+
+	fetchDuration  time.Duration
+	baseDuration   time.Duration
+	reflowDuration time.Duration
 
 	opts Options
 }
@@ -109,8 +116,9 @@ func isDigits(input string) bool {
 
 func fetchArticleCmd(url string, debug bool) tea.Cmd {
 	return func() tea.Msg {
+		start := time.Now()
 		art, err := fetch.FetchArticle(url, fetch.Options{Debug: debug})
-		return articleMsg{url: url, article: art, err: err}
+		return articleMsg{url: url, article: art, err: err, fetchDuration: time.Since(start)}
 	}
 }
 
@@ -123,6 +131,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.loading = false
 		m.pendingURL = ""
 		m.scroll = 0
+		m.fetchDuration = msg.fetchDuration
 		if msg.err != nil {
 			m.articleErr = msg.err
 			m.article = nil
@@ -269,22 +278,28 @@ func (m *Model) refreshArticleLines() {
 	}
 
 	if m.articleBase == "" {
+		baseStart := time.Now()
 		base, err := ui.RenderArticleBodyBase(ui.ArticleBodyMarkdown(m.article), ui.ArticleRenderOptions{NoColor: m.opts.NoColor})
+		m.baseDuration = time.Since(baseStart)
 		if err != nil {
 			m.articleErr = err
 			m.articleLines = []string{fmt.Sprintf("Error: %v", err)}
 			return
 		}
 		m.articleBase = base
+		logging.Debugf(m.opts.Debug, "browse: article base render %s", m.baseDuration)
 	}
 
 	styles := ui.NewArticleStyles(m.opts.NoColor)
+	reflowStart := time.Now()
 	body := ui.ReflowArticleBody(m.articleBase, styles, ui.ArticleRenderOptions{
 		NoColor:   m.opts.NoColor,
 		WrapWidth: 0,
 		TermWidth: termWidth,
 		TwoColumn: m.twoColumn,
 	})
+	m.reflowDuration = time.Since(reflowStart)
+	logging.Debugf(m.opts.Debug, "browse: article reflow %s", m.reflowDuration)
 
 	header := ui.RenderArticleHeader(m.article, styles)
 	indent := ui.DetectIndent(body)

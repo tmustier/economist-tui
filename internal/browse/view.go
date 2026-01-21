@@ -135,12 +135,26 @@ func (m Model) articleView() string {
 	}
 	help := fmt.Sprintf(articleHelpFormat, columnLabel)
 
-	indent := ui.DetectIndent(strings.Join(m.articleLines, "\n"))
+	indent := ui.ArticleIndent(ui.ArticleRenderOptions{
+		WrapWidth: 0,
+		TermWidth: m.width,
+		TwoColumn: m.twoColumn,
+	})
 	if indent > 0 {
 		helper := ui.IndentBlock(styles.Help.Render(help), indent)
 		b.WriteString(helper)
 	} else {
 		b.WriteString(styles.Help.Render(help))
+	}
+
+	if m.opts.Debug {
+		b.WriteString("\n")
+		detail := fmt.Sprintf("fetch=%s base=%s reflow=%s", m.fetchDuration, m.baseDuration, m.reflowDuration)
+		if indent > 0 {
+			b.WriteString(ui.IndentBlock(styles.Dim.Render(detail), indent))
+		} else {
+			b.WriteString(styles.Dim.Render(detail))
+		}
 	}
 
 	return b.String()

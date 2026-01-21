@@ -8,14 +8,15 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/reflow/wordwrap"
+	"github.com/muesli/termenv"
 	"github.com/tmustier/economist-cli/internal/article"
 )
 
 const (
-	columnGap       = 4
-	minColumnWidth  = 32
-	baseWrapWidth   = 2000
-	headerIndentMin = 0
+	columnGap      = 4
+	minColumnWidth = 32
+	baseWrapWidth  = 2000
+	bodyIndent     = 2
 )
 
 type ArticleRenderOptions struct {
@@ -41,13 +42,13 @@ func RenderArticle(art *article.Article, opts ArticleRenderOptions) (string, err
 	}
 
 	body := ReflowArticleBody(base, styles, opts)
-	indent := DetectIndent(body)
-	if indent > headerIndentMin {
+	indent := ArticleIndent(opts)
+	if indent > 0 {
 		header = IndentBlock(header, indent)
 	}
 
 	footer := ArticleFooter(art, styles)
-	if indent > headerIndentMin {
+	if indent > 0 {
 		footer = IndentBlock(footer, indent)
 	}
 
@@ -62,6 +63,14 @@ func resolveContentWidth(opts ArticleRenderOptions) int {
 		return opts.TermWidth
 	}
 	return TermWidth(int(os.Stdout.Fd()))
+}
+
+func ArticleIndent(opts ArticleRenderOptions) int {
+	width := resolveContentWidth(opts)
+	if width <= bodyIndent {
+		return 0
+	}
+	return bodyIndent
 }
 
 func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
@@ -83,8 +92,14 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 		return markdown, nil
 	}
 
+	styles := glamour.DarkStyleConfig
+	if !termenv.HasDarkBackground() {
+		styles = glamour.LightStyleConfig
+	}
+	styles.Document.Margin = uintPtr(0)
+
 	optsList := []glamour.TermRendererOption{
-		glamour.WithAutoStyle(),
+		glamour.WithStyles(styles),
 		glamour.WithWordWrap(baseWrapWidth),
 	}
 
@@ -103,6 +118,15 @@ func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, 
 
 func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOptions) string {
 	contentWidth := resolveContentWidth(opts)
+	indent := ArticleIndent(opts)
+	if indent > 0 {
+		if contentWidth <= indent {
+			indent = 0
+		} else {
+			contentWidth -= indent
+		}
+	}
+
 	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
 
 	wrapWidth := contentWidth
@@ -121,6 +145,10 @@ func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOpti
 
 	if !opts.NoColor {
 		body = HighlightTrailingMarker(body, styles)
+	}
+
+	if indent > 0 {
+		body = IndentBlock(body, indent)
 	}
 
 	return body
@@ -259,4 +287,8 @@ func leadingIndent(line string) int {
 		}
 	}
 	return indent
+}
+
+func uintPtr(v uint) *uint {
+	return &v
 }
