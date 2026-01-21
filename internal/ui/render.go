@@ -28,6 +28,14 @@ type ArticleRenderOptions struct {
 	TwoColumn bool
 }
 
+type ArticleLayout struct {
+	ContentWidth int
+	Indent       int
+	WrapWidth    int
+	ColumnWidth  int
+	UseColumns   bool
+}
+
 func RenderArticle(art *article.Article, opts ArticleRenderOptions) (string, error) {
 	if opts.Raw {
 		return art.ToMarkdown(), nil
@@ -67,11 +75,8 @@ func resolveContentWidth(opts ArticleRenderOptions) int {
 }
 
 func ArticleIndent(opts ArticleRenderOptions) int {
-	width := resolveContentWidth(opts)
-	if width <= bodyIndent {
-		return 0
-	}
-	return bodyIndent
+	layout := resolveArticleLayout(opts)
+	return layout.Indent
 }
 
 func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
@@ -86,6 +91,29 @@ func resolveColumnWidth(contentWidth int, enabled bool) (int, bool) {
 		return 0, false
 	}
 	return width, true
+}
+
+func resolveArticleLayout(opts ArticleRenderOptions) ArticleLayout {
+	contentWidth := resolveContentWidth(opts)
+	indent := 0
+	if contentWidth > bodyIndent {
+		indent = bodyIndent
+		contentWidth -= indent
+	}
+
+	columnWidth, useColumns := resolveColumnWidth(contentWidth, opts.TwoColumn)
+	wrapWidth := contentWidth
+	if useColumns {
+		wrapWidth = columnWidth
+	}
+
+	return ArticleLayout{
+		ContentWidth: contentWidth,
+		Indent:       indent,
+		WrapWidth:    wrapWidth,
+		ColumnWidth:  columnWidth,
+		UseColumns:   useColumns,
+	}
 }
 
 func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, error) {
@@ -150,6 +178,10 @@ func ReflowArticleBody(base string, styles ArticleStyles, opts ArticleRenderOpti
 
 	if indent > 0 {
 		body = IndentBlock(body, indent)
+	}
+
+	if opts.PlainBody && !opts.NoColor {
+		body = styles.Body.Render(body)
 	}
 
 	return body
