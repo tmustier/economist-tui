@@ -1,6 +1,11 @@
 package ui
 
-import "golang.org/x/term"
+import (
+	"os"
+	"strconv"
+
+	"golang.org/x/term"
+)
 
 const (
 	DefaultWidth  = 100
@@ -10,12 +15,21 @@ const (
 func TermSize(fd int) (int, int) {
 	w, h, err := term.GetSize(fd)
 	if err != nil || w <= 0 {
-		w = DefaultWidth
+		w = envInt("COLUMNS", DefaultWidth)
 	}
 	if h <= 0 {
-		h = DefaultHeight
+		h = envInt("LINES", DefaultHeight)
 	}
 	return w, h
+}
+
+func envInt(name string, fallback int) int {
+	if val, ok := os.LookupEnv(name); ok {
+		if n, err := strconv.Atoi(val); err == nil && n > 0 {
+			return n
+		}
+	}
+	return fallback
 }
 
 func TermWidth(fd int) int {

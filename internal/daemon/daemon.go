@@ -48,6 +48,7 @@ type FetchResponse struct {
 }
 
 type ArticlePayload struct {
+	Overtitle     string `json:"overtitle,omitempty"`
 	Title         string `json:"title"`
 	Subtitle      string `json:"subtitle,omitempty"`
 	DateLine      string `json:"date_line,omitempty"`
@@ -201,6 +202,7 @@ func Fetch(ctx context.Context, url string, debug bool) (*article.Article, error
 	}
 
 	art := &article.Article{
+		Overtitle:     payload.Article.Overtitle,
 		Title:         payload.Article.Title,
 		Subtitle:      payload.Article.Subtitle,
 		DateLine:      payload.Article.DateLine,
@@ -289,6 +291,7 @@ func Serve() error {
 			}
 		} else {
 			resp.Article = &ArticlePayload{
+				Overtitle:     art.Overtitle,
 				Title:         art.Title,
 				Subtitle:      art.Subtitle,
 				DateLine:      art.DateLine,

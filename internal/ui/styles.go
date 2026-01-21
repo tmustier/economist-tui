@@ -6,6 +6,7 @@ const HighlightColor = "124"
 
 type BrowseStyles struct {
 	Header   lipgloss.Style
+	Rule     lipgloss.Style
 	Title    lipgloss.Style
 	Selected lipgloss.Style
 	Dim      lipgloss.Style
@@ -14,14 +15,16 @@ type BrowseStyles struct {
 }
 
 type ArticleStyles struct {
-	Title    lipgloss.Style
-	Subtitle lipgloss.Style
-	Date     lipgloss.Style
-	Rule     lipgloss.Style
+	Overtitle lipgloss.Style
+	Title     lipgloss.Style
+	Subtitle  lipgloss.Style
+	Date      lipgloss.Style
+	Rule      lipgloss.Style
 }
 
 func NewBrowseStyles(noColor bool) BrowseStyles {
 	header := lipgloss.NewStyle().Bold(true)
+	rule := lipgloss.NewStyle().Foreground(lipgloss.Color(HighlightColor))
 	title := lipgloss.NewStyle().Bold(true)
 	selected := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(HighlightColor))
 	dim := lipgloss.NewStyle().Faint(true)
@@ -30,6 +33,7 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 
 	if noColor {
 		header = lipgloss.NewStyle().Bold(true)
+		rule = lipgloss.NewStyle()
 		title = lipgloss.NewStyle().Bold(true)
 		selected = lipgloss.NewStyle().Bold(true)
 		dim = lipgloss.NewStyle()
@@ -39,6 +43,7 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 
 	return BrowseStyles{
 		Header:   header,
+		Rule:     rule,
 		Title:    title,
 		Selected: selected,
 		Dim:      dim,
@@ -48,12 +53,14 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 }
 
 func NewArticleStyles(noColor bool) ArticleStyles {
+	overtitle := lipgloss.NewStyle().Faint(true)
 	title := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color(HighlightColor))
 	subtitle := lipgloss.NewStyle().Faint(true)
 	date := lipgloss.NewStyle().Faint(true)
 	rule := lipgloss.NewStyle().Faint(true)
 
 	if noColor {
+		overtitle = lipgloss.NewStyle()
 		title = lipgloss.NewStyle().Bold(true)
 		subtitle = lipgloss.NewStyle()
 		date = lipgloss.NewStyle()
@@ -61,9 +68,10 @@ func NewArticleStyles(noColor bool) ArticleStyles {
 	}
 
 	return ArticleStyles{
-		Title:    title,
-		Subtitle: subtitle,
-		Date:     date,
-		Rule:     rule,
+		Overtitle: overtitle,
+		Title:     title,
+		Subtitle:  subtitle,
+		Date:      date,
+		Rule:      rule,
 	}
 }

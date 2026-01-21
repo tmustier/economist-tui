@@ -7,6 +7,8 @@ A command-line tool to browse and read articles from The Economist.
 - 📰 **Browse headlines** from any section via RSS
 - 🔍 **Search** articles by keyword
 - 📖 **Read full articles** in your terminal (requires subscription)
+- 🧠 **Cached reads** (1 hour) for faster repeat access
+- 📰 **Two-column layout** toggle for article bodies
 - 🎨 **Pretty rendering** with glamour markdown formatting
 
 ## Installation
@@ -74,6 +76,8 @@ Interactive TUI for browsing headlines and reading articles.
 - `←`/`→` to page
 - Type to search (fuzzy filter, digits jump to item)
 - `Enter` to read selected article
+- `b` to go back to headlines
+- `c` to toggle 2-column article layout
 - `Esc` to clear search / quit
 - `q` to quit
 
@@ -119,7 +123,8 @@ Fetch and display a full article. Use `-` or stdin to pass a URL.
 | Flag | Description |
 |------|-------------|
 | `--raw` | Output plain markdown (no formatting) |
-| `--wrap` | Wrap width for rendered output (0 = no wrap) |
+| `--wrap` | Wrap width for rendered output (0 = auto) |
+| `--columns` | Number of columns for article body (1 or 2) |
 
 Requires login for full content.
 
@@ -160,7 +165,8 @@ economist headlines finance --plain | fzf | cut -f2 | xargs economist read
 
 ## Configuration
 
-Config and cookies stored in `~/.config/economist-cli/`
+Config and cookies stored in `~/.config/economist-cli/`.
+Cached articles live in `~/.config/economist-cli/cache` (1 hour TTL).
 
 ## How It Works
 

@@ -10,7 +10,7 @@ CLI tool to browse and read The Economist articles.
 ## Commands
 
 ```bash
-# Interactive browse (TUI, human-only, type to search, ←/→ page)
+# Interactive browse (TUI, human-only, type to search, ←/→ page, b back, c columns)
 economist browse [section]
 
 # Run background daemon for faster reads
@@ -24,7 +24,7 @@ economist serve --stop
 economist headlines [section] [-n count] [-s search] [--json|--plain]
 
 # Read full article
-economist read [url|-] [--raw] [--wrap N]
+economist read [url|-] [--raw] [--wrap N] [--columns 1|2]
 
 # Login (one-time, opens browser)
 economist login
@@ -59,6 +59,9 @@ economist read "https://www.economist.com/..." --raw
 
 # Pretty terminal rendering
 economist read "https://www.economist.com/..." --wrap 100
+
+# Two-column article body
+economist read "https://www.economist.com/..." --columns 2
 
 # Debug HTML dump
 economist --debug read "https://www.economist.com/..."
@@ -96,4 +99,5 @@ Note: `browse` requires a TTY and won't work in agent context. Use `headlines --
 
 - Headlines via RSS: title, one-line description, date, URL (~300 items per section, ~10 months history)
 - Full articles require login (bypasses Cloudflare via headless browser)
+- Articles cached for 1 hour under `~/.config/economist-cli/cache`
 - Articles render as markdown with glamour formatting

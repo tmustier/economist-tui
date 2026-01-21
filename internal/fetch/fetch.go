@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/tmustier/economist-cli/internal/article"
 	"github.com/tmustier/economist-cli/internal/browser"
+	"github.com/tmustier/economist-cli/internal/cache"
 	"github.com/tmustier/economist-cli/internal/config"
 	"github.com/tmustier/economist-cli/internal/daemon"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
@@ -18,13 +20,33 @@ type Options struct {
 	Debug bool
 }
 
+var purgeOnce sync.Once
+
 func FetchArticle(url string, opts Options) (*article.Article, error) {
 	logging.Debugf(opts.Debug, "read: start url=%s", url)
+
+	if !opts.Debug {
+		purgeOnce.Do(func() {
+			if err := cache.PurgeExpired(); err != nil {
+				logging.Debugf(opts.Debug, "read: cache purge error: %v", err)
+			}
+		})
+		if cached, ok, err := cache.LoadArticle(url); err == nil && ok {
+			logging.Debugf(opts.Debug, "read: cache hit")
+			return validateArticle(cached)
+		} else if err != nil {
+			logging.Debugf(opts.Debug, "read: cache load error: %v", err)
+		}
+	}
 
 	art, err := fetchViaDaemon(url, opts)
 	if err == nil {
 		logging.Debugf(opts.Debug, "read: daemon fetch ok")
-		return validateArticle(art)
+		art, err = validateArticle(art)
+		if err != nil {
+			return nil, err
+		}
+		return cacheArticle(art, opts)
 	}
 	if !errors.Is(err, daemon.ErrNotRunning) {
 		logging.Debugf(opts.Debug, "read: daemon fetch error: %v", err)
@@ -37,7 +59,11 @@ func FetchArticle(url string, opts Options) (*article.Article, error) {
 		return nil, err
 	}
 
-	return validateArticle(art)
+	art, err = validateArticle(art)
+	if err != nil {
+		return nil, err
+	}
+	return cacheArticle(art, opts)
 }
 
 func fetchViaDaemon(url string, opts Options) (*article.Article, error) {
@@ -91,6 +117,19 @@ func fetchLocal(url string, opts Options) (*article.Article, error) {
 func validateArticle(art *article.Article) (*article.Article, error) {
 	if art.Content == "" {
 		return nil, appErrors.NewUserError("no article content found - try 'economist login'")
+	}
+	return art, nil
+}
+
+func cacheArticle(art *article.Article, opts Options) (*article.Article, error) {
+	if opts.Debug {
+		return art, nil
+	}
+
+	cached := *art
+	cached.DebugHTMLPath = ""
+	if err := cache.SaveArticle(&cached); err != nil {
+		logging.Debugf(opts.Debug, "read: cache save error: %v", err)
 	}
 	return art, nil
 }

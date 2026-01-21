@@ -56,6 +56,7 @@ var blockedURLPatterns = []string{
 }
 
 type Article struct {
+	Overtitle     string
 	Title         string
 	Subtitle      string
 	DateLine      string
@@ -142,8 +143,18 @@ func parseArticle(html, articleURL string) (*Article, error) {
 	}
 
 	article := &Article{URL: articleURL}
+	article.Overtitle = findFirst(
+		doc,
+		".article__overline",
+		".article__overline-link",
+		"[data-test-id='overline']",
+		".article__kicker",
+		".article__section",
+		".article__section-headline",
+		".article__headline-overline",
+	)
 	article.Title = findFirst(doc, "h1.article__headline", "[data-test-id='headline']", "article h1", "h1")
-	article.Subtitle = findFirst(doc, ".article__description", "[data-test-id='subheadline']", ".article__subheadline")
+	article.Subtitle = findFirst(doc, ".article__description", "[data-test-id='subheadline']", ".article__subheadline", "h2.article__description")
 	article.DateLine = strings.TrimSpace(doc.Find("time").First().Text())
 	article.Content = extractContent(doc)
 
@@ -351,6 +362,10 @@ func debugStep(enabled bool, message string) chromedp.ActionFunc {
 
 func (a *Article) ToMarkdown() string {
 	var sb strings.Builder
+
+	if a.Overtitle != "" {
+		sb.WriteString(fmt.Sprintf("*%s*\n\n", a.Overtitle))
+	}
 
 	sb.WriteString(fmt.Sprintf("# %s\n\n", a.Title))
 

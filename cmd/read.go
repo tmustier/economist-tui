@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
 	"github.com/tmustier/economist-cli/internal/article"
 	"github.com/tmustier/economist-cli/internal/config"
@@ -19,6 +18,7 @@ import (
 var (
 	rawOutput bool
 	wrapWidth int
+	columns   int
 )
 
 var readCmd = &cobra.Command{
@@ -38,13 +38,18 @@ Examples:
 
 func init() {
 	readCmd.Flags().BoolVar(&rawOutput, "raw", false, "Output raw markdown")
-	readCmd.Flags().IntVar(&wrapWidth, "wrap", 100, "Wrap width for rendered output (0 = no wrap)")
+	readCmd.Flags().IntVar(&wrapWidth, "wrap", 0, "Wrap width for rendered output (0 = auto)")
+	readCmd.Flags().IntVar(&columns, "columns", 1, "Number of columns for article body (1 or 2)")
 }
 
 func runRead(cmd *cobra.Command, args []string) error {
 	url, err := resolveURL(args)
 	if err != nil {
 		return err
+	}
+
+	if columns < 1 || columns > 2 {
+		return appErrors.NewUserError("columns must be 1 or 2")
 	}
 
 	if !config.IsLoggedIn() {
@@ -68,38 +73,17 @@ func runRead(cmd *cobra.Command, args []string) error {
 }
 
 func outputArticle(art *article.Article) error {
-	if rawOutput {
-		fmt.Println(art.ToMarkdown())
-		return nil
-	}
-
-	styles := ui.NewArticleStyles(noColor)
-	fmt.Print(ui.RenderArticleHeader(art, styles))
-
-	md := ui.ArticleBodyMarkdown(art)
-	if noColor {
-		fmt.Println(md)
-		return nil
-	}
-
-	opts := []glamour.TermRendererOption{glamour.WithAutoStyle()}
-	if wrapWidth > 0 {
-		opts = append(opts, glamour.WithWordWrap(wrapWidth))
-	}
-
-	renderer, err := glamour.NewTermRenderer(opts...)
+	out, err := ui.RenderArticle(art, ui.ArticleRenderOptions{
+		Raw:       rawOutput,
+		NoColor:   noColor,
+		WrapWidth: wrapWidth,
+		TwoColumn: columns == 2,
+	})
 	if err != nil {
-		fmt.Println(md)
-		return nil
+		return err
 	}
 
-	out, err := renderer.Render(md)
-	if err != nil {
-		fmt.Println(md)
-		return nil
-	}
-
-	fmt.Println(out)
+	fmt.Print(out)
 	return nil
 }
 
