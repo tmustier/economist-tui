@@ -31,13 +31,14 @@ type ArticleRenderOptions struct {
 }
 
 type ArticleLayout struct {
-	TermWidth    int
-	ContentWidth int
-	Indent       int
-	OuterPadding int
-	WrapWidth    int
-	ColumnWidth  int
-	UseColumns   bool
+	TermWidth       int
+	ContentWidth    int
+	Indent          int
+	OuterPadding    int
+	WrapWidth       int
+	HeaderWrapWidth int
+	ColumnWidth     int
+	UseColumns      bool
 }
 
 func RenderArticle(art *article.Article, opts ArticleRenderOptions) (string, error) {
@@ -125,20 +126,36 @@ func resolveArticleLayout(opts ArticleRenderOptions) ArticleLayout {
 		wrapWidth = columnWidth
 	}
 
+	headerWrapWidth := wrapWidth
+	if useColumns {
+		headerWrapWidth = availableWidth
+	}
+	if headerWrapWidth < 0 {
+		headerWrapWidth = 0
+	}
+
 	outerPadding := 0
 	if opts.Center && termWidth > contentWidth {
 		outerPadding = (termWidth - contentWidth) / 2
 	}
 
 	return ArticleLayout{
-		TermWidth:    termWidth,
-		ContentWidth: contentWidth,
-		Indent:       indent,
-		OuterPadding: outerPadding,
-		WrapWidth:    wrapWidth,
-		ColumnWidth:  columnWidth,
-		UseColumns:   useColumns,
+		TermWidth:       termWidth,
+		ContentWidth:    contentWidth,
+		Indent:          indent,
+		OuterPadding:    outerPadding,
+		WrapWidth:       wrapWidth,
+		HeaderWrapWidth: headerWrapWidth,
+		ColumnWidth:     columnWidth,
+		UseColumns:      useColumns,
 	}
+}
+
+func writeHeaderAccent(sb *strings.Builder, layout ArticleLayout, opts ArticleRenderOptions) {
+	sb.WriteString("\n")
+	accentStyles := NewStyles(CurrentTheme(), opts.NoColor)
+	sb.WriteString(AccentRule(layout.ContentWidth, accentStyles))
+	sb.WriteString("\n\n")
 }
 
 func RenderArticleBodyBase(markdown string, opts ArticleRenderOptions) (string, error) {

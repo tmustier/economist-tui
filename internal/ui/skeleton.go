@@ -62,7 +62,7 @@ type SkeletonHeader struct {
 func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleRenderOptions) string {
 	var sb strings.Builder
 	layout := resolveArticleLayout(opts)
-	wrapWidth := layout.WrapWidth
+	wrapWidth := layout.HeaderWrapWidth
 
 	sb.WriteString("\n")
 
@@ -75,32 +75,21 @@ func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleR
 	}
 
 	// Title (real from RSS)
-	if h.Title != "" {
-		for _, line := range WrapLines(h.Title, wrapWidth) {
-			sb.WriteString(styles.Title.Render(line))
-			sb.WriteString("\n")
-		}
-	}
+	writeWrapped(&sb, h.Title, wrapWidth, func(line string) string {
+		return styles.Title.Render(line)
+	})
 
 	// Subtitle (real from RSS)
-	if h.Subtitle != "" {
-		for _, line := range WrapLines(h.Subtitle, wrapWidth) {
-			sb.WriteString(styles.Subtitle.Render(line))
-			sb.WriteString("\n")
-		}
-	}
+	writeWrapped(&sb, h.Subtitle, wrapWidth, func(line string) string {
+		return styles.Subtitle.Render(line)
+	})
 
 	// Date (real from RSS)
-	if h.Date != "" {
-		sb.WriteString(styles.Date.Render(h.Date))
-		sb.WriteString("\n")
-	}
+	writeWrapped(&sb, h.Date, wrapWidth, func(line string) string {
+		return styles.Date.Render(line)
+	})
 
-	// Accent rule
-	sb.WriteString("\n")
-	accentStyles := NewStyles(CurrentTheme(), opts.NoColor)
-	sb.WriteString(AccentRule(layout.ContentWidth, accentStyles))
-	sb.WriteString("\n\n")
+	writeHeaderAccent(&sb, layout, opts)
 
 	return sb.String()
 }
@@ -108,7 +97,7 @@ func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleR
 // RenderSkeletonBody renders placeholder lines for the article body.
 func RenderSkeletonBody(styles SkeletonStyles, opts ArticleRenderOptions, lineCount int) string {
 	layout := resolveArticleLayout(opts)
-	wrapWidth := layout.WrapWidth
+	wrapWidth := layout.HeaderWrapWidth
 	if wrapWidth <= 0 {
 		wrapWidth = 60
 	}

@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/muesli/reflow/wordwrap"
 	"github.com/tmustier/economist-tui/internal/article"
 )
 
 func RenderArticleHeader(art *article.Article, styles ArticleStyles, opts ArticleRenderOptions) string {
 	var sb strings.Builder
 	layout := resolveArticleLayout(opts)
-	wrapWidth := layout.WrapWidth
+	wrapWidth := layout.HeaderWrapWidth
 
 	sb.WriteString("\n")
 	wroteOvertitle := writeWrapped(&sb, art.Overtitle, wrapWidth, func(line string) string {
@@ -30,10 +29,7 @@ func RenderArticleHeader(art *article.Article, styles ArticleStyles, opts Articl
 		return styles.Date.Render(line)
 	})
 
-	sb.WriteString("\n")
-	accentStyles := NewStyles(CurrentTheme(), opts.NoColor)
-	sb.WriteString(AccentRule(layout.ContentWidth, accentStyles))
-	sb.WriteString("\n\n")
+	writeHeaderAccent(&sb, layout, opts)
 	return sb.String()
 }
 
@@ -71,19 +67,11 @@ func writeWrapped(sb *strings.Builder, text string, width int, render func(strin
 	if text == "" {
 		return false
 	}
-	for _, line := range wrapHeaderText(text, width) {
+	for _, line := range WrapLines(text, width) {
 		sb.WriteString(render(line))
 		sb.WriteString("\n")
 	}
 	return true
-}
-
-func wrapHeaderText(text string, width int) []string {
-	if width <= 0 {
-		return []string{text}
-	}
-	wrapped := wordwrap.String(text, width)
-	return strings.Split(wrapped, "\n")
 }
 
 func renderOvertitle(text string, styles ArticleStyles) string {

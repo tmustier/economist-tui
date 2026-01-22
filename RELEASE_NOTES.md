@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.2.1
+
+- **Reader layout**: keep article headers full width when body is in two-column mode.
+
 ## v0.2.0
 
 Highlights
