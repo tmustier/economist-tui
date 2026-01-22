@@ -64,16 +64,52 @@ func (i Item) CleanDescription() string {
 }
 
 func (i Item) FormattedDate() string {
+	if t, ok := parsePubDate(i.PubDate); ok {
+		return formatOrdinalDate(t)
+	}
+	return strings.TrimSpace(i.PubDate)
+}
+
+func (i Item) CompactDate() string {
+	if t, ok := parsePubDate(i.PubDate); ok {
+		return t.Format("02.01.06")
+	}
+	return strings.TrimSpace(i.PubDate)
+}
+
+func parsePubDate(pubDate string) (time.Time, bool) {
 	formats := []string{
 		time.RFC1123Z,
 		"Mon, 02 Jan 2006 15:04:05 +0000",
 	}
 	for _, format := range formats {
-		if t, err := time.Parse(format, i.PubDate); err == nil {
-			return t.Format("Jan 02, 2006")
+		if t, err := time.Parse(format, pubDate); err == nil {
+			return t, true
 		}
 	}
-	return i.PubDate
+	return time.Time{}, false
+}
+
+func formatOrdinalDate(t time.Time) string {
+	day := t.Day()
+	suffix := ordinalSuffix(day)
+	return fmt.Sprintf("%s %d%s %d", t.Format("Jan"), day, suffix, t.Year())
+}
+
+func ordinalSuffix(day int) string {
+	if day%100 >= 11 && day%100 <= 13 {
+		return "th"
+	}
+	switch day % 10 {
+	case 1:
+		return "st"
+	case 2:
+		return "nd"
+	case 3:
+		return "rd"
+	default:
+		return "th"
+	}
 }
 
 func FetchSection(section string) (*RSS, error) {
