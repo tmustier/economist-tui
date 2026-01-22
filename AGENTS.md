@@ -8,6 +8,7 @@ Guidelines for AI agents working on this project.
 - For risky changes, consider creating a branch
 - Write meaningful regression tests as you go
 - When shipping user-facing changes, bump the version (cmd/root.go or build flags) and add release notes if appropriate
+- When incrementing the version, update the Homebrew tap formula in `tmustier/homebrew-tap`
 
 ## TUI
 
