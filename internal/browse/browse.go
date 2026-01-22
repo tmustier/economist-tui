@@ -14,9 +14,22 @@ type Options struct {
 }
 
 func Run(section string, opts Options) error {
-	feed, err := rss.FetchSection(section)
+	sectionTitle, items, err := loadSection(section)
 	if err != nil {
 		return err
+	}
+
+	ui.InitTheme()
+	m := NewModel(section, items, sectionTitle, opts)
+	p := tea.NewProgram(m, tea.WithAltScreen())
+	_, err = p.Run()
+	return err
+}
+
+func loadSection(section string) (string, []rss.Item, error) {
+	feed, err := rss.FetchSection(section)
+	if err != nil {
+		return "", nil, err
 	}
 
 	items := feed.Channel.Items
@@ -29,9 +42,5 @@ func Run(section string, opts Options) error {
 		sectionTitle = section
 	}
 
-	ui.InitTheme()
-	m := NewModel(items, sectionTitle, opts)
-	p := tea.NewProgram(m, tea.WithAltScreen())
-	_, err = p.Run()
-	return err
+	return sectionTitle, items, nil
 }

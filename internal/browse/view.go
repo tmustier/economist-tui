@@ -35,8 +35,21 @@ func (m Model) browseView() (string, string) {
 	b.WriteString(header + "\n")
 	b.WriteString(ui.AccentRule(contentWidth, accentStyles) + "\n")
 
+	statusLine := ""
+	if m.sectionLoading && m.pendingSection != "" {
+		statusLine = styles.Dim.Render(fmt.Sprintf("loading %s…", m.pendingSection))
+	} else if m.sectionErr != nil {
+		statusLine = styles.Dim.Render(fmt.Sprintf("error: %v", m.sectionErr))
+	}
+
 	if m.searchQuery != "" {
-		b.WriteString(styles.Search.Render(fmt.Sprintf("search: %s", m.searchQuery)) + "\n")
+		line := styles.Search.Render(fmt.Sprintf("search: %s", m.searchQuery))
+		if statusLine != "" {
+			line = fmt.Sprintf("%s  %s", line, statusLine)
+		}
+		b.WriteString(line + "\n")
+	} else if statusLine != "" {
+		b.WriteString(statusLine + "\n")
 	} else {
 		b.WriteString("\n")
 	}

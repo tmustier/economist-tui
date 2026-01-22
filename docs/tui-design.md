@@ -220,7 +220,7 @@ Since terminals use monospace fonts, we achieve hierarchy through:
 │ │               │ │                                      │ │
 │ └───────────────┘ └──────────────────────────────────────┘ │
 │                                                             │
-│ ↑/↓ navigate • enter read • tab switch • / search • q quit │
+│ ↑/↓ navigate • enter read • tab/shift+tab switch • / search • q quit │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -272,7 +272,7 @@ Since terminals use monospace fonts, we achieve hierarchy through:
                                └──────────────────┘
 
 Navigation:
-- Tab / ←/→: Switch between sidebar and headlines
+- Tab/Shift+Tab / ←/→: Switch between sidebar and headlines
 - Enter: Drill down (section → headlines → article)
 - Esc: Back up one level
 - q: Quit (or go back if in reader)
