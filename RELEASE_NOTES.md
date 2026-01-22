@@ -1,8 +1,12 @@
 # Release Notes
 
+## v0.2.7
+
+- **Reader layout**: prevent column text from bleeding into neighboring columns.
+
 ## v0.2.6
 
-- **Reader layout**: multi-column mode now caps column count for short articles, centers the column block, and prevents column overlap.
+- **Reader layout**: multi-column mode now caps column count for short articles and centers the column block.
 - **Reader UI**: columns hint now shows on/off state.
 
 ## v0.2.5
