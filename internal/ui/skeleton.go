@@ -4,14 +4,21 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/reflow/wordwrap"
 )
 
 // SkeletonBlock characters
 const (
 	SkeletonSolid = "█"
 	SkeletonLight = "░"
+
+	skeletonOvertitleWidth  = 16
+	skeletonMinLineLength   = 10
+	skeletonParagraphStride = 4
+	skeletonBodyMinLines    = 8
+	skeletonBodyMaxLines    = 32
 )
+
+var skeletonLineLengths = []float64{0.95, 0.88, 1.0, 0.75, 0.92, 0.85, 1.0, 0.70}
 
 // SkeletonStyles holds styles for skeleton loading states.
 type SkeletonStyles struct {
@@ -25,26 +32,23 @@ type SkeletonStyles struct {
 
 // NewSkeletonStyles creates themed skeleton styles.
 func NewSkeletonStyles(noColor bool) SkeletonStyles {
+	articleStyles := NewArticleStyles(noColor)
 	theme := CurrentTheme()
 
+	solid := lipgloss.NewStyle().Foreground(theme.TextFaint)
+	light := lipgloss.NewStyle().Foreground(theme.Border)
 	if noColor {
-		return SkeletonStyles{
-			Section:  lipgloss.NewStyle().Bold(true),
-			Solid:    lipgloss.NewStyle(),
-			Light:    lipgloss.NewStyle(),
-			Title:    lipgloss.NewStyle().Bold(true),
-			Subtitle: lipgloss.NewStyle(),
-			Date:     lipgloss.NewStyle(),
-		}
+		solid = lipgloss.NewStyle()
+		light = lipgloss.NewStyle()
 	}
 
 	return SkeletonStyles{
-		Section:  lipgloss.NewStyle().Bold(true).Foreground(theme.Brand),
-		Solid:    lipgloss.NewStyle().Foreground(theme.TextFaint),
-		Light:    lipgloss.NewStyle().Foreground(theme.Border),
-		Title:    lipgloss.NewStyle().Bold(true).Foreground(theme.Brand),
-		Subtitle: lipgloss.NewStyle().Foreground(theme.TextMuted),
-		Date:     lipgloss.NewStyle().Foreground(theme.TextFaint).Faint(true),
+		Section:  articleStyles.Section,
+		Solid:    solid,
+		Light:    light,
+		Title:    articleStyles.Title,
+		Subtitle: articleStyles.Subtitle,
+		Date:     articleStyles.Date,
 	}
 }
 
@@ -66,7 +70,7 @@ func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleR
 
 	// Overtitle: Section | ████████████████
 	if h.Section != "" {
-		overtitleSkeleton := strings.Repeat(SkeletonSolid, 16)
+		overtitleSkeleton := strings.Repeat(SkeletonSolid, skeletonOvertitleWidth)
 		line := styles.Section.Render(h.Section) + " | " + styles.Solid.Render(overtitleSkeleton)
 		sb.WriteString(line)
 		sb.WriteString("\n\n")
@@ -74,7 +78,7 @@ func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleR
 
 	// Title (real from RSS)
 	if h.Title != "" {
-		for _, line := range skeletonWrapText(h.Title, wrapWidth) {
+		for _, line := range WrapLines(h.Title, wrapWidth) {
 			sb.WriteString(styles.Title.Render(line))
 			sb.WriteString("\n")
 		}
@@ -82,7 +86,7 @@ func RenderSkeletonHeader(h SkeletonHeader, styles SkeletonStyles, opts ArticleR
 
 	// Subtitle (real from RSS)
 	if h.Subtitle != "" {
-		for _, line := range skeletonWrapText(h.Subtitle, wrapWidth) {
+		for _, line := range WrapLines(h.Subtitle, wrapWidth) {
 			sb.WriteString(styles.Subtitle.Render(line))
 			sb.WriteString("\n")
 		}
@@ -111,20 +115,17 @@ func RenderSkeletonBody(styles SkeletonStyles, opts ArticleRenderOptions, lineCo
 		wrapWidth = 60
 	}
 
-	// Vary line lengths for a natural look
-	lineLengths := []float64{0.95, 0.88, 1.0, 0.75, 0.92, 0.85, 1.0, 0.70}
-
 	var sb strings.Builder
 	for i := 0; i < lineCount; i++ {
 		// Add paragraph breaks every ~4 lines
-		if i > 0 && i%4 == 0 {
+		if i > 0 && i%skeletonParagraphStride == 0 {
 			sb.WriteString("\n")
 		}
 
-		lengthFactor := lineLengths[i%len(lineLengths)]
+		lengthFactor := skeletonLineLengths[i%len(skeletonLineLengths)]
 		lineLen := int(float64(wrapWidth) * lengthFactor)
-		if lineLen < 10 {
-			lineLen = 10
+		if lineLen < skeletonMinLineLength {
+			lineLen = skeletonMinLineLength
 		}
 
 		skeletonLine := strings.Repeat(SkeletonLight, lineLen)
@@ -143,19 +144,24 @@ func RenderArticleSkeleton(h SkeletonHeader, opts ArticleRenderOptions, availabl
 	header := RenderSkeletonHeader(h, styles, opts)
 
 	// Calculate body lines based on available space
-	headerLines := strings.Count(header, "\n")
-	// Available for body = total - header - footer (1 line) - bottom padding (1 line)
-	availableForBody := availableLines - headerLines - 2
-	
+	headerLines := lineCount(header)
+	availableForBody := availableLines - headerLines
+	if availableLines <= 0 {
+		availableForBody = skeletonBodyMaxLines
+	}
+	if availableForBody < 0 {
+		availableForBody = 0
+	}
+
 	// Body adds paragraph breaks every 4 lines, so actual lines = content + breaks
 	// For N content lines with breaks every 4: total = N + (N/4)
 	// So content lines = availableForBody * 4 / 5
 	bodyLines := (availableForBody * 4) / 5
-	if bodyLines < 8 {
-		bodyLines = 8
+	if bodyLines < skeletonBodyMinLines {
+		bodyLines = skeletonBodyMinLines
 	}
-	if bodyLines > 32 {
-		bodyLines = 32 // cap it
+	if bodyLines > skeletonBodyMaxLines {
+		bodyLines = skeletonBodyMaxLines
 	}
 
 	body := RenderSkeletonBody(styles, opts, bodyLines)
@@ -167,12 +173,4 @@ func RenderArticleSkeleton(h SkeletonHeader, opts ArticleRenderOptions, availabl
 	}
 
 	return header + body
-}
-
-func skeletonWrapText(text string, width int) []string {
-	if width <= 0 {
-		return []string{text}
-	}
-	wrapped := wordwrap.String(text, width)
-	return strings.Split(wrapped, "\n")
 }

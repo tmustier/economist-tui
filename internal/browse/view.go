@@ -229,5 +229,5 @@ func (m Model) loadingSkeletonView() string {
 		header.Date = m.loadingItem.FormattedDate()
 	}
 
-	return ui.RenderArticleSkeleton(header, m.articleRenderOptions(), m.height)
+	return ui.RenderArticleSkeleton(header, m.articleRenderOptions(), m.articleViewHeight())
 }
