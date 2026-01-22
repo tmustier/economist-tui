@@ -3,6 +3,9 @@ package demo
 import (
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/tmustier/economist-tui/internal/rss"
 )
 
 func TestDemoSource(t *testing.T) {
@@ -18,7 +21,22 @@ func TestDemoSource(t *testing.T) {
 		t.Fatalf("expected items")
 	}
 
-	art, err := source.Article(items[0].Link)
+	if !itemsSortedByDate(items) {
+		t.Fatalf("expected items sorted by date")
+	}
+
+	link := ""
+	for _, item := range items {
+		if strings.HasSuffix(item.Link, "/fair-exchange") {
+			link = item.Link
+			break
+		}
+	}
+	if link == "" {
+		t.Fatalf("expected fair exchange item")
+	}
+
+	art, err := source.Article(link)
 	if err != nil {
 		t.Fatalf("article: %v", err)
 	}
@@ -35,4 +53,25 @@ func TestDemoSource(t *testing.T) {
 	if !strings.HasSuffix(strings.TrimSpace(art.Content), "■") {
 		t.Fatalf("expected trailing marker")
 	}
+}
+
+func itemsSortedByDate(items []rss.Item) bool {
+	if len(items) < 2 {
+		return true
+	}
+	prev, err := time.Parse(time.RFC1123Z, items[0].PubDate)
+	if err != nil {
+		return false
+	}
+	for _, item := range items[1:] {
+		current, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			return false
+		}
+		if current.After(prev) {
+			return false
+		}
+		prev = current
+	}
+	return true
 }
