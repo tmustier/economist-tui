@@ -9,6 +9,7 @@ Guidelines for AI agents working on this project.
 - Write meaningful regression tests as you go
 - When shipping user-facing changes, bump the version (cmd/root.go or build flags) and add release notes if appropriate
 - When incrementing the version, update the Homebrew tap formula in `tmustier/homebrew-tap`
+- When incrementing the version, create a GitHub release with the matching release-notes entry
 
 ## Codebase Orientation
 
