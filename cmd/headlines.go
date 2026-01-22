@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	appErrors "github.com/tmustier/economist-cli/internal/errors"
 	"github.com/tmustier/economist-cli/internal/rss"
@@ -132,48 +131,80 @@ func printHeadlinesPlain(items []rss.Item) {
 }
 
 func printHeadlines(items []rss.Item, title string) {
-	width := ui.TermWidth(int(os.Stdout.Fd()))
-
-	// Styles
-	titleStyle := lipgloss.NewStyle().Bold(true)
-	dimStyle := lipgloss.NewStyle().Faint(true)
-	if noColor {
-		titleStyle = lipgloss.NewStyle()
-		dimStyle = lipgloss.NewStyle()
+	termWidth := ui.TermWidth(int(os.Stdout.Fd()))
+	if termWidth <= 0 {
+		termWidth = ui.DefaultWidth
 	}
+	contentWidth := ui.ReaderContentWidth(termWidth)
+
+	styles := ui.NewBrowseStyles(noColor)
+	accentStyles := ui.NewStyles(ui.CurrentTheme(), noColor)
 
 	// Header
-	fmt.Printf("%s\n\n", title)
+	fmt.Printf("%s\n", styles.Header.Render(title))
+	fmt.Printf("%s\n\n", ui.AccentRule(contentWidth, accentStyles))
 
 	items = limitItems(items)
+	if len(items) == 0 {
+		fmt.Println("No articles found.")
+		return
+	}
 
-	layout := ui.NewHeadlineLayout(width, len(" 1. "))
+	numWidth := len(fmt.Sprintf("%d", len(items)))
+	prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(items)))
+	dateWidth := ui.DefaultDateWidth
+	useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth
+	if useCompactDates {
+		dateWidth = len("02.01.06")
+	}
+	layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth)
+	prefixPad := strings.Repeat(" ", prefixWidth)
+	subtitleWidth := contentWidth - 4
+	if subtitleWidth < 1 {
+		subtitleWidth = 1
+	}
 
 	for i, item := range items {
-		num := fmt.Sprintf("%2d. ", i+1)
+		num := fmt.Sprintf("%*d. ", numWidth, i+1)
 		headline := item.CleanTitle()
 		date := item.FormattedDate()
+		if useCompactDates {
+			date = item.CompactDate()
+		}
+		dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
 
-		paddedTitle := layout.PadTitle(headline)
+		titleLines := ui.WrapLines(headline, layout.TitleWidth)
+		if len(titleLines) == 0 {
+			titleLines = []string{""}
+		}
+		for idx, line := range titleLines {
+			if idx == 0 {
+				paddedTitle := fmt.Sprintf("%-*s", layout.TitleWidth, line)
+				fmt.Printf("%s%s%s\n",
+					num,
+					styles.Title.Render(paddedTitle),
+					styles.Dim.Render(dateColumn),
+				)
+				continue
+			}
+			if line == "" {
+				fmt.Printf("%s\n", prefixPad)
+				continue
+			}
+			fmt.Printf("%s%s\n", prefixPad, styles.Title.Render(line))
+		}
 
-		fmt.Printf("%s%s%s\n",
-			num,
-			titleStyle.Render(paddedTitle),
-			dimStyle.Render(date),
-		)
-
-		// Description (indented)
 		if desc := item.CleanDescription(); desc != "" {
-			descWidth := width - 4
-			desc = ui.Truncate(desc, descWidth)
-			fmt.Printf("    %s\n", desc)
+			for _, line := range ui.WrapLines(desc, subtitleWidth) {
+				if line == "" {
+					fmt.Printf("    \n")
+					continue
+				}
+				fmt.Printf("    %s\n", styles.Subtitle.Render(line))
+			}
 		}
 
 		// URL (dimmed, indented)
-		fmt.Printf("    %s\n\n", dimStyle.Render(item.Link))
-	}
-
-	if len(items) == 0 {
-		fmt.Println("No articles found.")
+		fmt.Printf("    %s\n\n", styles.Dim.Render(item.Link))
 	}
 }
