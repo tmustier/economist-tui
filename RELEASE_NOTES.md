@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.3.3
+
+- **Demo mode**: add Lincoln assassination and Stalin death fixtures, plus archive.org source links.
+
 ## v0.3.2
 
 - **Demo mode**: update demo header to describe archive content.
