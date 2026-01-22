@@ -1,5 +1,13 @@
 # Release Notes
 
+## v0.3.7
+
+- **Demo mode**: refine cybernetics and polling subtitles.
+
+## v0.3.6
+
+- **Demo mode**: update “Riding on the Sputnik” subtitle to match the article’s summit focus.
+
 ## v0.3.5
 
 - **Browse navigation**: reduce item truncation on short terminals by collapsing subtitle lines before dropping items.

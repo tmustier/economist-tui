@@ -11,7 +11,7 @@ import (
 var (
 	debugMode bool
 	noColor   bool
-	version   = "0.3.5"
+	version   = "0.3.7"
 	commit    = ""
 	date      = ""
 )
