@@ -17,13 +17,19 @@ func (m Model) View() string {
 
 func (m Model) browseView() string {
 	styles := ui.NewBrowseStyles(m.opts.NoColor)
+	accentStyles := ui.NewStyles(ui.CurrentTheme(), m.opts.NoColor)
 
 	var b strings.Builder
 
+	termWidth := m.width
+	if termWidth <= 0 {
+		termWidth = ui.DefaultWidth
+	}
+	contentWidth := ui.ReaderContentWidth(termWidth)
+
 	header := styles.Header.Render(m.sectionTitle)
 	b.WriteString(header + "\n")
-	rule := strings.Repeat("─", ui.Min(m.width, 60))
-	b.WriteString(styles.Rule.Render(rule) + "\n")
+	b.WriteString(ui.AccentRule(contentWidth, accentStyles) + "\n")
 
 	if m.searchQuery != "" {
 		b.WriteString(styles.Search.Render(fmt.Sprintf("search: %s", m.searchQuery)) + "\n")
@@ -54,13 +60,24 @@ func (m Model) browseView() string {
 		}
 
 		numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
-		prefix := fmt.Sprintf("%*d. ", numWidth, len(m.allItems))
-		layout := ui.NewHeadlineLayout(m.width, len(prefix))
+		prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(m.allItems)))
+		dateWidth := ui.DefaultDateWidth
+		useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth
+		if useCompactDates {
+			dateWidth = len("02.01.06")
+		}
+		layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth)
+		prefixPad := strings.Repeat(" ", prefixWidth)
+		subtitleWidth := contentWidth - 4
+		if subtitleWidth < 1 {
+			subtitleWidth = 1
+		}
 
 		for i := start; i < end; i++ {
 			item := items[i]
 			lineStyle := styles.Title
 			dateStyle := styles.Dim
+			subtitleStyle := styles.Subtitle
 			if i == m.cursor {
 				lineStyle = styles.Selected
 				dateStyle = styles.Selected
@@ -69,23 +86,37 @@ func (m Model) browseView() string {
 			num := fmt.Sprintf("%*d. ", numWidth, i+1)
 			title := item.CleanTitle()
 			date := item.FormattedDate()
+			if useCompactDates {
+				date = item.CompactDate()
+			}
+			dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
 
-			paddedTitle := layout.PadTitle(title)
-
-			b.WriteString(fmt.Sprintf("%s%s%s\n",
-				num,
-				lineStyle.Render(paddedTitle),
-				dateStyle.Render(date),
-			))
+			titleLines := padLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines)
+			for lineIdx, line := range titleLines {
+				if lineIdx == 0 {
+					paddedTitle := fmt.Sprintf("%-*s", layout.TitleWidth, line)
+					b.WriteString(fmt.Sprintf("%s%s%s\n",
+						num,
+						lineStyle.Render(paddedTitle),
+						dateStyle.Render(dateColumn),
+					))
+					continue
+				}
+				if line == "" {
+					b.WriteString(prefixPad + "\n")
+					continue
+				}
+				b.WriteString(fmt.Sprintf("%s%s\n", prefixPad, lineStyle.Render(line)))
+			}
 
 			desc := item.CleanDescription()
-			if desc != "" {
-				maxDescLen := m.width - 4
-				if maxDescLen < ui.MinTitleWidth {
-					maxDescLen = ui.MinTitleWidth
+			subtitleLines := padLines(ui.WrapLines(desc, subtitleWidth), browseSubtitleLines)
+			for _, line := range subtitleLines {
+				if line == "" {
+					b.WriteString("    \n")
+					continue
 				}
-				desc = ui.Truncate(desc, maxDescLen)
-				b.WriteString(fmt.Sprintf("    %s\n", styles.Dim.Render(desc)))
+				b.WriteString(fmt.Sprintf("    %s\n", subtitleStyle.Render(line)))
 			}
 
 			b.WriteString("\n")
@@ -191,4 +222,20 @@ func padView(view string, height int) string {
 		return view
 	}
 	return view + strings.Repeat("\n", height-lines)
+}
+
+func padLines(lines []string, count int) []string {
+	if count <= 0 {
+		return nil
+	}
+	if len(lines) > count {
+		return lines[:count]
+	}
+	if len(lines) == 0 {
+		lines = []string{}
+	}
+	for len(lines) < count {
+		lines = append(lines, "")
+	}
+	return lines
 }
