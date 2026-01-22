@@ -7,14 +7,13 @@ const (
 	browseTitleLines       = 2
 	browseSubtitleLines    = 2
 	browseHeaderLines      = 4
-	browseFooterLines      = 1
+	browseFooterLines      = 2
 	browseFooterPadding    = 1
 	browseFooterGapLines   = 1
-	browseProgressLines    = 2
-	browseReservedLines    = browseHeaderLines + browseFooterLines + browseFooterPadding + browseFooterGapLines + browseProgressLines
+	browseReservedLines    = browseHeaderLines + browseFooterLines + browseFooterPadding + browseFooterGapLines
 	browseMinVisibleLines  = 5
 	browseItemHeight       = browseTitleLines + browseSubtitleLines + 1
-	articleFooterLines     = 2
+	articleFooterLines     = 3
 	articleFooterPadding   = 1
 	articleFooterGapLines  = 1
 	articleReservedLines   = articleFooterLines + articleFooterPadding + articleFooterGapLines

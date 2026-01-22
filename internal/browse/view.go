@@ -42,11 +42,12 @@ func (m Model) browseView() (string, string) {
 	}
 
 	items := m.filteredItems
+	maxVisible := 0
 
 	if len(items) == 0 {
 		b.WriteString("\n" + styles.Dim.Render("  No matching articles") + "\n")
 	} else {
-		maxVisible := m.pageSize()
+		maxVisible = m.pageSize()
 		if maxVisible > len(items) {
 			maxVisible = len(items)
 		}
@@ -122,13 +123,15 @@ func (m Model) browseView() (string, string) {
 			b.WriteString("\n")
 		}
 
-		if len(items) > maxVisible {
-			b.WriteString(styles.Dim.Render(fmt.Sprintf("\n  (%d/%d)", m.cursor+1, len(items))))
-		}
 	}
 
 	content := b.String()
-	footer := styles.Help.Render(browseHelpText)
+	footerLines := []string{}
+	if len(items) > maxVisible {
+		footerLines = append(footerLines, styles.Dim.Render(fmt.Sprintf("  (%d/%d)", m.cursor+1, len(items))))
+	}
+	footerLines = append(footerLines, styles.Help.Render(browseHelpText))
+	footer := strings.Join(footerLines, "\n")
 	if indent > 0 {
 		content = ui.IndentBlock(content, indent)
 		footer = ui.IndentBlock(footer, indent)
@@ -198,7 +201,7 @@ func (m Model) articleView() (string, string) {
 			}
 		}
 		hint := fmt.Sprintf("%d%% · more ↓", pct)
-		footerLines = append(footerLines, styles.Dim.Render(hint))
+		footerLines = append(footerLines, "", styles.Dim.Render(hint))
 	}
 	footerLines = append(footerLines, styles.Help.Render(help))
 
