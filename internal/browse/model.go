@@ -297,10 +297,10 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.cursor++
 		}
 	case tea.KeyLeft:
-		page := m.pageSize()
+		page := m.pageSize(len(m.filteredItems))
 		m.cursor = ui.Max(0, m.cursor-page)
 	case tea.KeyRight:
-		page := m.pageSize()
+		page := m.pageSize(len(m.filteredItems))
 		m.cursor = ui.Min(m.cursor+page, len(m.filteredItems)-1)
 	case tea.KeyHome:
 		m.cursor = 0
@@ -456,8 +456,24 @@ func (m Model) articleRenderOptions() ui.ArticleRenderOptions {
 	}
 }
 
-func (m Model) pageSize() int {
-	visibleItems := m.height - browseReservedLines
+func (m Model) pageSize(itemCount int) int {
+	termWidth := m.width
+	if termWidth <= 0 {
+		termWidth = ui.DefaultWidth
+	}
+	contentWidth := ui.ReaderContentWidth(termWidth)
+	helpLineCount := len(browseHelpLines(contentWidth))
+
+	page := m.pageSizeWithFooter(helpLineCount, true)
+	if itemCount <= page {
+		page = m.pageSizeWithFooter(helpLineCount, false)
+	}
+	return page
+}
+
+func (m Model) pageSizeWithFooter(helpLineCount int, showPosition bool) int {
+	reserved := browseHeaderLines + browseFooterPadding + browseFooterGapLines + browseFooterLines(helpLineCount, showPosition)
+	visibleItems := m.height - reserved
 	if visibleItems < browseMinVisibleLines {
 		visibleItems = browseMinVisibleLines
 	}
@@ -466,6 +482,14 @@ func (m Model) pageSize() int {
 		page = 1
 	}
 	return page
+}
+
+func browseFooterLines(helpLineCount int, showPosition bool) int {
+	lines := 2 + helpLineCount
+	if showPosition {
+		lines++
+	}
+	return lines
 }
 
 func (m Model) articleViewHeight() int {

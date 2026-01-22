@@ -60,7 +60,7 @@ func (m Model) browseView() (string, string) {
 	if len(items) == 0 {
 		b.WriteString("\n" + styles.Dim.Render("  No matching articles") + "\n")
 	} else {
-		maxVisible = m.pageSize()
+		maxVisible = m.pageSize(len(items))
 		if maxVisible > len(items) {
 			maxVisible = len(items)
 		}
@@ -140,12 +140,15 @@ func (m Model) browseView() (string, string) {
 
 	content := b.String()
 	divider := ui.SectionRule(contentWidth, accentStyles)
-	footerLines := []string{"", divider}
+	helpLines := browseHelpLines(contentWidth)
+	footerLines := make([]string, 0, len(helpLines)+1)
 	if len(items) > maxVisible {
 		footerLines = append(footerLines, styles.Dim.Render(fmt.Sprintf("(%d/%d)", m.cursor+1, len(items))))
 	}
-	footerLines = append(footerLines, styles.Help.Render(browseHelpText))
-	footer := strings.Join(footerLines, "\n")
+	for _, line := range helpLines {
+		footerLines = append(footerLines, styles.Help.Render(line))
+	}
+	footer := buildFooter(divider, footerLines...)
 	if indent > 0 {
 		content = ui.IndentBlock(content, indent)
 		footer = ui.IndentBlock(footer, indent)
@@ -181,7 +184,7 @@ func (m Model) articleView() (string, string) {
 	if m.loading {
 		content := m.loadingSkeletonView()
 		footer := styles.Help.Render(articleLoadingHelp)
-		footer = buildArticleFooter("", divider, footer)
+		footer = buildFooter(divider, footer)
 		if indent > 0 {
 			footer = ui.IndentBlock(footer, indent)
 		}
@@ -192,7 +195,7 @@ func (m Model) articleView() (string, string) {
 		b.WriteString(styles.Dim.Render(fmt.Sprintf("%v", m.articleErr)))
 		content := b.String()
 		footer := styles.Help.Render(articleLoadingHelp)
-		footer = buildArticleFooter("", divider, footer)
+		footer = buildFooter(divider, footer)
 		if indent > 0 {
 			content = ui.IndentBlock(content, indent)
 			footer = ui.IndentBlock(footer, indent)
@@ -204,7 +207,7 @@ func (m Model) articleView() (string, string) {
 		b.WriteString("No article loaded.")
 		content := b.String()
 		footer := styles.Help.Render(articleLoadingHelp)
-		footer = buildArticleFooter("", divider, footer)
+		footer = buildFooter(divider, footer)
 		if indent > 0 {
 			content = ui.IndentBlock(content, indent)
 			footer = ui.IndentBlock(footer, indent)
@@ -244,7 +247,7 @@ func (m Model) articleView() (string, string) {
 		divider = ""
 	}
 
-	footer := buildArticleFooter(hintLine, divider, styles.Help.Render(help))
+	footer := buildFooter(divider, hintLine, styles.Help.Render(help))
 	if m.opts.Debug {
 		detail := fmt.Sprintf("fetch=%s base=%s reflow=%s", m.fetchDuration, m.baseDuration, m.reflowDuration)
 		footer = strings.TrimRight(footer, "\n") + "\n" + styles.Dim.Render(detail)
@@ -271,13 +274,15 @@ func (m Model) loadingSkeletonView() string {
 	return ui.RenderArticleSkeleton(header, m.articleRenderOptions(), m.articleViewHeight())
 }
 
-func buildArticleFooter(hintLine, divider, helpLine string) string {
-	lines := []string{"", divider}
-	if hintLine != "" {
-		lines = append(lines, hintLine)
+func buildFooter(divider string, lines ...string) string {
+	footerLines := []string{"", divider}
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		footerLines = append(footerLines, line)
 	}
-	lines = append(lines, helpLine)
-	return strings.Join(lines, "\n")
+	return strings.Join(footerLines, "\n")
 }
 
 func lastNonBlankLine(lines []string) string {
