@@ -106,7 +106,7 @@ func (m Model) browseView() (string, string) {
 			RightColumnWidth: dateLayout.ColumnWidth,
 			TitleLines:       layout.titleLines,
 			SubtitleLines:    layout.subtitleLines,
-			ItemGapLines:     1,
+			ItemGapLines:     browseItemGapLines,
 			SelectedIndex:    m.cursor,
 			Start:            start,
 			End:              end,

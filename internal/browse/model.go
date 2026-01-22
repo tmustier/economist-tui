@@ -542,19 +542,18 @@ type browseLayout struct {
 
 func (m Model) browseLayout(itemCount int) browseLayout {
 	helpLineCount := m.browseHelpLineCount()
-	layout := m.browseLayoutForFooter(helpLineCount, true)
+	layout := m.browseLayoutForFooter(helpLineCount, true, itemCount)
 	if itemCount <= layout.maxVisible {
-		layout = m.browseLayoutForFooter(helpLineCount, false)
+		layout = m.browseLayoutForFooter(helpLineCount, false, itemCount)
 	}
 	return layout
 }
 
-func (m Model) browseLayoutForFooter(helpLineCount int, showPosition bool) browseLayout {
+func (m Model) browseLayoutForFooter(helpLineCount int, showPosition bool, itemCount int) browseLayout {
 	spec := browseLayoutSpec(helpLineCount, showPosition)
 	visibleLines := spec.VisibleLines(m.height)
 	titleLines, subtitleLines := resolveBrowseItemLines(visibleLines)
-	itemHeight := titleLines + subtitleLines + 1
-	maxVisible := visibleLines / itemHeight
+	maxVisible := m.maxVisibleItems(itemCount, visibleLines, titleLines, subtitleLines)
 	if maxVisible < 1 {
 		maxVisible = 1
 	}
@@ -573,6 +572,75 @@ func (m Model) browseHelpLineCount() int {
 	}
 	contentWidth := ui.ReaderContentWidth(termWidth)
 	return len(browseHelpLines(contentWidth))
+}
+
+func (m Model) maxVisibleItems(itemCount, visibleLines, titleLines, subtitleLines int) int {
+	if itemCount <= 0 {
+		return 0
+	}
+	if visibleLines <= 0 {
+		return 1
+	}
+	items := m.filteredItems
+	if itemCount < len(items) {
+		items = items[:itemCount]
+	}
+	start := m.browseStart
+	if start < 0 {
+		start = 0
+	}
+	if start >= len(items) {
+		start = ui.Max(0, len(items)-1)
+	}
+	titleWidth := m.browseTitleWidth()
+	used := 0
+	count := 0
+	for i := start; i < len(items); i++ {
+		height := browseItemHeight(items[i], titleWidth, titleLines, subtitleLines)
+		if count > 0 && used+height > visibleLines {
+			break
+		}
+		used += height
+		count++
+		if used >= visibleLines {
+			break
+		}
+	}
+	if count < 1 {
+		count = 1
+	}
+	return count
+}
+
+func (m Model) browseTitleWidth() int {
+	termWidth := m.width
+	if termWidth <= 0 {
+		termWidth = ui.DefaultWidth
+	}
+	contentWidth := ui.ReaderContentWidth(termWidth)
+	numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
+	prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(m.allItems)))
+	dateLayout := ui.ResolveDateLayout(contentWidth, prefixWidth)
+	titleWidth := contentWidth - prefixWidth - dateLayout.ColumnWidth
+	minWidth := prefixWidth + dateLayout.ColumnWidth + ui.MinTitleWidth
+	if titleWidth < ui.MinTitleWidth && contentWidth >= minWidth {
+		titleWidth = ui.MinTitleWidth
+	}
+	if titleWidth < 1 {
+		titleWidth = 1
+	}
+	return titleWidth
+}
+
+func browseItemHeight(item rss.Item, titleWidth, titleLines, subtitleLines int) int {
+	title := item.CleanTitle()
+	titleLineCount := len(ui.LimitLines(ui.WrapLines(title, titleWidth), titleLines, titleWidth))
+	if titleLineCount == 0 {
+		titleLineCount = 1
+	}
+	subtitle := item.CleanDescription()
+	subtitleLineCount := len(ui.LimitLines(ui.WrapLines(subtitle, titleWidth), subtitleLines, titleWidth))
+	return titleLineCount + subtitleLineCount + browseItemGapLines
 }
 
 func resolveBrowseItemLines(visibleLines int) (int, int) {
