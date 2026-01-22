@@ -6,9 +6,17 @@ const (
 	articleLoadingHelp     = "b/← back • q quit"
 	browseTitleLines       = 2
 	browseSubtitleLines    = 2
-	browseReservedLines    = 8
+	browseHeaderLines      = 4
+	browseFooterLines      = 1
+	browseFooterPadding    = 1
+	browseFooterGapLines   = 1
+	browseProgressLines    = 2
+	browseReservedLines    = browseHeaderLines + browseFooterLines + browseFooterPadding + browseFooterGapLines + browseProgressLines
 	browseMinVisibleLines  = 5
 	browseItemHeight       = browseTitleLines + browseSubtitleLines + 1
-	articleReservedLines   = 2
+	articleFooterLines     = 2
+	articleFooterPadding   = 1
+	articleFooterGapLines  = 1
+	articleReservedLines   = articleFooterLines + articleFooterPadding + articleFooterGapLines
 	articleMinVisibleLines = 5
 )

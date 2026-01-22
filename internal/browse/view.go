@@ -10,12 +10,14 @@ import (
 
 func (m Model) View() string {
 	if m.mode == modeArticle {
-		return padView(m.articleView(), m.height)
+		content, footer := m.articleView()
+		return ui.LayoutWithFooter(content, footer, m.height, browseFooterPadding)
 	}
-	return padView(m.browseView(), m.height)
+	content, footer := m.browseView()
+	return ui.LayoutWithFooter(content, footer, m.height, browseFooterPadding)
 }
 
-func (m Model) browseView() string {
+func (m Model) browseView() (string, string) {
 	styles := ui.NewBrowseStyles(m.opts.NoColor)
 	accentStyles := ui.NewStyles(ui.CurrentTheme(), m.opts.NoColor)
 
@@ -125,45 +127,58 @@ func (m Model) browseView() string {
 		}
 	}
 
-	b.WriteString("\n\n")
-	b.WriteString(styles.Help.Render(browseHelpText))
-
 	content := b.String()
+	footer := styles.Help.Render(browseHelpText)
 	if indent > 0 {
 		content = ui.IndentBlock(content, indent)
+		footer = ui.IndentBlock(footer, indent)
 	}
 
-	return content
+	return content, footer
 }
 
-func (m Model) articleView() string {
+func (m Model) articleView() (string, string) {
 	styles := ui.NewBrowseStyles(m.opts.NoColor)
+	indent := ui.ArticleIndent(m.articleRenderOptions())
 
 	var b strings.Builder
 	if m.loading {
-		b.WriteString("Loading article...\n\n")
-		b.WriteString(styles.Help.Render(articleLoadingHelp))
-		return b.String()
+		b.WriteString("Loading article...")
+		content := b.String()
+		footer := styles.Help.Render(articleLoadingHelp)
+		if indent > 0 {
+			content = ui.IndentBlock(content, indent)
+			footer = ui.IndentBlock(footer, indent)
+		}
+		return content, footer
 	}
 
 	if m.articleErr != nil {
 		b.WriteString(styles.Dim.Render(fmt.Sprintf("%v", m.articleErr)))
-		b.WriteString("\n\n")
-		b.WriteString(styles.Help.Render(articleLoadingHelp))
-		return b.String()
+		content := b.String()
+		footer := styles.Help.Render(articleLoadingHelp)
+		if indent > 0 {
+			content = ui.IndentBlock(content, indent)
+			footer = ui.IndentBlock(footer, indent)
+		}
+		return content, footer
 	}
 
 	if len(m.articleLines) == 0 {
-		b.WriteString("No article loaded.\n\n")
-		b.WriteString(styles.Help.Render(articleLoadingHelp))
-		return b.String()
+		b.WriteString("No article loaded.")
+		content := b.String()
+		footer := styles.Help.Render(articleLoadingHelp)
+		if indent > 0 {
+			content = ui.IndentBlock(content, indent)
+			footer = ui.IndentBlock(footer, indent)
+		}
+		return content, footer
 	}
 
 	start := ui.Min(m.scroll, m.maxArticleScroll())
 	viewHeight := m.articleViewHeight()
 	end := ui.Min(len(m.articleLines), start+viewHeight)
-	b.WriteString(strings.Join(m.articleLines[start:end], "\n"))
-	b.WriteString("\n")
+	content := strings.Join(m.articleLines[start:end], "\n")
 
 	columnLabel := "1-col"
 	if m.twoColumn {
@@ -171,10 +186,8 @@ func (m Model) articleView() string {
 	}
 	help := fmt.Sprintf(articleHelpFormat, columnLabel)
 
-	indent := ui.ArticleIndent(m.articleRenderOptions())
-
 	showMore := end < len(m.articleLines)
-	hintLine := ""
+	footerLines := []string{}
 	if showMore {
 		pct := 0
 		if len(m.articleLines) > 0 {
@@ -187,42 +200,19 @@ func (m Model) articleView() string {
 			}
 		}
 		hint := fmt.Sprintf("%d%% · more ↓", pct)
-		hintLine = styles.Dim.Render(hint)
+		footerLines = append(footerLines, styles.Dim.Render(hint))
 	}
-	if indent > 0 {
-		b.WriteString(ui.IndentBlock(hintLine, indent))
-	} else {
-		b.WriteString(hintLine)
-	}
-	b.WriteString("\n")
-
-	if indent > 0 {
-		helper := ui.IndentBlock(styles.Help.Render(help), indent)
-		b.WriteString(helper)
-	} else {
-		b.WriteString(styles.Help.Render(help))
-	}
+	footerLines = append(footerLines, styles.Help.Render(help))
 
 	if m.opts.Debug {
-		b.WriteString("\n")
 		detail := fmt.Sprintf("fetch=%s base=%s reflow=%s", m.fetchDuration, m.baseDuration, m.reflowDuration)
-		if indent > 0 {
-			b.WriteString(ui.IndentBlock(styles.Dim.Render(detail), indent))
-		} else {
-			b.WriteString(styles.Dim.Render(detail))
-		}
+		footerLines = append(footerLines, styles.Dim.Render(detail))
 	}
 
-	return b.String()
-}
+	footer := strings.Join(footerLines, "\n")
+	if indent > 0 {
+		footer = ui.IndentBlock(footer, indent)
+	}
 
-func padView(view string, height int) string {
-	if height <= 0 {
-		return view
-	}
-	lines := strings.Count(view, "\n") + 1
-	if lines >= height {
-		return view
-	}
-	return view + strings.Repeat("\n", height-lines)
+	return content, footer
 }
