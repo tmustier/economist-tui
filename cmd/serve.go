@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/daemon"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
+	"github.com/tmustier/economist-tui/internal/daemon"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
 )
 
 var (

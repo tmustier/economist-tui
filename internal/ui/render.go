@@ -9,7 +9,7 @@ import (
 	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/termenv"
-	"github.com/tmustier/economist-cli/internal/article"
+	"github.com/tmustier/economist-tui/internal/article"
 )
 
 const (

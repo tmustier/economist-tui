@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/rss"
+	"github.com/tmustier/economist-tui/internal/rss"
 )
 
 var sectionsCmd = &cobra.Command{

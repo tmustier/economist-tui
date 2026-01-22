@@ -8,7 +8,7 @@ import (
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
-	"github.com/tmustier/economist-cli/internal/config"
+	"github.com/tmustier/economist-tui/internal/config"
 )
 
 const (

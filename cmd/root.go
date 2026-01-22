@@ -5,21 +5,21 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
 )
 
 var (
 	debugMode bool
 	noColor   bool
-	version   = "dev"
+	version   = "0.1.0"
 	commit    = ""
 	date      = ""
 )
 
 var rootCmd = &cobra.Command{
 	Use:           "economist",
-	Short:         "CLI tool to read The Economist",
-	Long:          `A command-line interface to browse and read articles from The Economist.`,
+	Short:         "Terminal UI to read The Economist",
+	Long:          `A terminal UI and CLI to browse and read articles from The Economist.`,
 	SilenceUsage:  true,
 	SilenceErrors: true,
 }

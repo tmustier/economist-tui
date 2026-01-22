@@ -11,10 +11,10 @@ import (
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
-	"github.com/tmustier/economist-cli/internal/browser"
-	"github.com/tmustier/economist-cli/internal/config"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/logging"
+	"github.com/tmustier/economist-tui/internal/browser"
+	"github.com/tmustier/economist-tui/internal/config"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/logging"
 )
 
 // Content length thresholds

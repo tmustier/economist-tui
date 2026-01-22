@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tmustier/economist-cli/internal/article"
+	"github.com/tmustier/economist-tui/internal/article"
 )
 
 func setTempHome(t *testing.T) string {

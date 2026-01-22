@@ -9,12 +9,12 @@ import (
 	"unicode"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tmustier/economist-cli/internal/article"
-	"github.com/tmustier/economist-cli/internal/fetch"
-	"github.com/tmustier/economist-cli/internal/logging"
-	"github.com/tmustier/economist-cli/internal/rss"
-	"github.com/tmustier/economist-cli/internal/search"
-	"github.com/tmustier/economist-cli/internal/ui"
+	"github.com/tmustier/economist-tui/internal/article"
+	"github.com/tmustier/economist-tui/internal/fetch"
+	"github.com/tmustier/economist-tui/internal/logging"
+	"github.com/tmustier/economist-tui/internal/rss"
+	"github.com/tmustier/economist-tui/internal/search"
+	"github.com/tmustier/economist-tui/internal/ui"
 )
 
 type viewMode int
@@ -40,10 +40,10 @@ type Model struct {
 	height        int
 	searchQuery   string
 
-	mode        viewMode
-	loading     bool
-	loadingItem *rss.Item
-	pendingURL  string
+	mode         viewMode
+	loading      bool
+	loadingItem  *rss.Item
+	pendingURL   string
 	article      *article.Article
 	articleBase  string
 	articleLines []string
@@ -235,7 +235,7 @@ func (m Model) updateArticle(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c", "q":
 		return m, tea.Quit
-	case "b", "left":
+	case "b", "enter":
 		m.mode = modeBrowse
 		m.loading = false
 		m.loadingItem = nil

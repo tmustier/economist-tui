@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/muesli/reflow/wordwrap"
-	"github.com/tmustier/economist-cli/internal/article"
+	"github.com/tmustier/economist-tui/internal/article"
 )
 
 func RenderArticleHeader(art *article.Article, styles ArticleStyles, opts ArticleRenderOptions) string {

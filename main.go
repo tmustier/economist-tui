@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/tmustier/economist-cli/cmd"
+	"github.com/tmustier/economist-tui/cmd"
 )
 
 func main() {

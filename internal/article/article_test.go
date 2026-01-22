@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
 )
 
 func loadFixture(t *testing.T, name string) string {

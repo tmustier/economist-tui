@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/tmustier/economist-cli/internal/article"
-	"github.com/tmustier/economist-cli/internal/config"
+	"github.com/tmustier/economist-tui/internal/article"
+	"github.com/tmustier/economist-tui/internal/config"
 )
 
 const articleTTL = time.Hour

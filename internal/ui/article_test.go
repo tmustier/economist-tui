@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tmustier/economist-cli/internal/article"
+	"github.com/tmustier/economist-tui/internal/article"
 )
 
 func TestArticleFooterFormatting(t *testing.T) {

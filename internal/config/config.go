@@ -17,13 +17,27 @@ type Cookie struct {
 	Path   string `json:"path"`
 }
 
+const (
+	configDirName       = "economist-tui"
+	legacyConfigDirName = "economist-cli"
+)
+
 func ConfigDir() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "economist-cli")
+	return filepath.Join(home, ".config", configDirName)
+}
+
+func LegacyConfigDir() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".config", legacyConfigDirName)
 }
 
 func ConfigPath() string {
 	return filepath.Join(ConfigDir(), "config.json")
+}
+
+func legacyConfigPath() string {
+	return filepath.Join(LegacyConfigDir(), "config.json")
 }
 
 func BrowserDataDir() string {
@@ -34,9 +48,17 @@ func Load() (*Config, error) {
 	data, err := os.ReadFile(ConfigPath())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &Config{}, nil
+			legacyData, legacyErr := os.ReadFile(legacyConfigPath())
+			if legacyErr != nil {
+				if os.IsNotExist(legacyErr) {
+					return &Config{}, nil
+				}
+				return nil, legacyErr
+			}
+			data = legacyData
+		} else {
+			return nil, err
 		}
-		return nil, err
 	}
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {

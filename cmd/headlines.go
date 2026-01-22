@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/rss"
-	"github.com/tmustier/economist-cli/internal/ui"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/rss"
+	"github.com/tmustier/economist-tui/internal/ui"
 )
 
 var (

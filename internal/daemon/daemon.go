@@ -15,10 +15,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tmustier/economist-cli/internal/article"
-	"github.com/tmustier/economist-cli/internal/config"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/logging"
+	"github.com/tmustier/economist-tui/internal/article"
+	"github.com/tmustier/economist-tui/internal/config"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/logging"
 )
 
 const (

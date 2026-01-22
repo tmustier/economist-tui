@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tmustier/economist-cli/internal/browser"
-	"github.com/tmustier/economist-cli/internal/search"
+	"github.com/tmustier/economist-tui/internal/browser"
+	"github.com/tmustier/economist-tui/internal/search"
 )
 
 const httpTimeout = 10 * time.Second

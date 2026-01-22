@@ -1,4 +1,4 @@
-module github.com/tmustier/economist-cli
+module github.com/tmustier/economist-tui
 
 go 1.25
 

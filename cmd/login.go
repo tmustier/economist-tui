@@ -9,8 +9,8 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/browser"
-	"github.com/tmustier/economist-cli/internal/config"
+	"github.com/tmustier/economist-tui/internal/browser"
+	"github.com/tmustier/economist-tui/internal/config"
 )
 
 var loginCmd = &cobra.Command{

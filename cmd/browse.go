@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/browse"
-	"github.com/tmustier/economist-cli/internal/daemon"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/logging"
-	"github.com/tmustier/economist-cli/internal/ui"
+	"github.com/tmustier/economist-tui/internal/browse"
+	"github.com/tmustier/economist-tui/internal/daemon"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/logging"
+	"github.com/tmustier/economist-tui/internal/ui"
 )
 
 var browseCmd = &cobra.Command{

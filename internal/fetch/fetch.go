@@ -7,13 +7,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tmustier/economist-cli/internal/article"
-	"github.com/tmustier/economist-cli/internal/browser"
-	"github.com/tmustier/economist-cli/internal/cache"
-	"github.com/tmustier/economist-cli/internal/config"
-	"github.com/tmustier/economist-cli/internal/daemon"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/logging"
+	"github.com/tmustier/economist-tui/internal/article"
+	"github.com/tmustier/economist-tui/internal/browser"
+	"github.com/tmustier/economist-tui/internal/cache"
+	"github.com/tmustier/economist-tui/internal/config"
+	"github.com/tmustier/economist-tui/internal/daemon"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/logging"
 )
 
 type Options struct {

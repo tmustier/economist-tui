@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tmustier/economist-cli/internal/rss"
-	"github.com/tmustier/economist-cli/internal/ui"
+	"github.com/tmustier/economist-tui/internal/rss"
+	"github.com/tmustier/economist-tui/internal/ui"
 )
 
 type Options struct {

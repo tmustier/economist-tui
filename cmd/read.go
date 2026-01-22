@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tmustier/economist-cli/internal/article"
-	"github.com/tmustier/economist-cli/internal/config"
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
-	"github.com/tmustier/economist-cli/internal/fetch"
-	"github.com/tmustier/economist-cli/internal/ui"
+	"github.com/tmustier/economist-tui/internal/article"
+	"github.com/tmustier/economist-tui/internal/config"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
+	"github.com/tmustier/economist-tui/internal/fetch"
+	"github.com/tmustier/economist-tui/internal/ui"
 )
 
 var (

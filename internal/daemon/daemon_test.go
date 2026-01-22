@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	appErrors "github.com/tmustier/economist-cli/internal/errors"
+	appErrors "github.com/tmustier/economist-tui/internal/errors"
 )
 
 func withTestDaemon(t *testing.T, handler http.Handler) {
