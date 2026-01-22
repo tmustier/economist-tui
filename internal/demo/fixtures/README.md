@@ -26,7 +26,7 @@ Additional fixtures include leader excerpts provided for demo mode:
 - `riding-on-the-sputnik.txt` — **The Economist, Nov 9th 1957**
 - `young-mans-america.txt` — **The Economist, Nov 12th 1960**
 
-Fixture metadata (titles, subtitles, dates, ordering, sources) lives in `index.json`. Dates accept `YYYY-MM-DD` or human-readable formats like `Nov 12th 1960`. Subtitles are curated for demo readability rather than extracted from the OCR text.
+Fixture metadata (titles, subtitles, dates, ordering, sources) lives in `index.json`. Dates accept `YYYY-MM-DD` or human-readable formats like `Nov 12th 1960`. Subtitles are invented for illustration; think about what the article is saying and write a concise Economist-style subtitle rather than an obvious restatement. When a title is vague, it’s fine to be plainer (e.g., “Asian Milestone” is subtitled “Malaya’s independence” because that’s what it covers, even if the title alone doesn’t make it obvious).
 
 ## Adding fixtures
 
