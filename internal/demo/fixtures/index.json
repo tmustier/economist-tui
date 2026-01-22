@@ -2,7 +2,7 @@
   {
     "slug": "lincoln-assassination",
     "title": "Lincoln's Assassination",
-    "subtitle": "Reconstruction after a national tragedy",
+    "subtitle": "Reconstruction resumes",
     "file": "lincoln-assassination.txt",
     "date": "1865-10-14",
     "source": "https://archive.org/details/economist23londuoft"
@@ -66,7 +66,7 @@
   {
     "slug": "death-of-stalin",
     "title": "The Death of Stalin",
-    "subtitle": "A world without the Soviet master",
+    "subtitle": "Stalinism without Stalin",
     "file": "death-of-stalin.txt",
     "date": "1953-03-07",
     "source": "https://archive.org/details/sim_economist_1953-03-07_166"
@@ -74,7 +74,7 @@
   {
     "slug": "rockets-for-reindeer",
     "title": "Rockets for Reindeer",
-    "subtitle": "The promise and limits of space travel",
+    "subtitle": "Artificial satellites",
     "file": "rockets-for-reindeer.txt",
     "date": "1953-12-26",
     "source": "https://archive.org/details/sim_economist_1953-12-26"
@@ -82,7 +82,7 @@
   {
     "slug": "electronic-abacus",
     "title": "Electronic Abacus",
-    "subtitle": "Lyons, Leo, and the electronic office",
+    "subtitle": "Lyons' electronic office",
     "file": "electronic-abacus.txt",
     "date": "1954-03-13",
     "source": "https://archive.org/details/sim_economist_1954-03-13"
@@ -90,7 +90,7 @@
   {
     "slug": "president-to-the-rescue",
     "title": "President to the Rescue?",
-    "subtitle": "Unemployment figures and mid-term politics",
+    "subtitle": "Eisenhower's mid-term pitch",
     "file": "president-to-the-rescue.txt",
     "date": "1954-10-30",
     "source": "https://archive.org/details/sim_economist_1954-10-30"

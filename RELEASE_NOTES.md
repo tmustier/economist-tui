@@ -2,7 +2,7 @@
 
 ## v0.3.7
 
-- **Demo mode**: refine cybernetics and polling subtitles.
+- **Demo mode**: refine cybernetics, polling, and mid-century subtitles.
 
 ## v0.3.6
 
