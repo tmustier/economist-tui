@@ -23,4 +23,11 @@ Additional fixtures include leader excerpts provided for demo mode:
 
 Fixture metadata (titles, subtitles, dates, ordering, sources) lives in `index.json`. Dates accept `YYYY-MM-DD` or human-readable formats like `Nov 12th 1960`. Subtitles are curated for demo readability rather than extracted from the OCR text.
 
+## Adding fixtures
+
+1. Find an OCR source on archive.org and copy a short excerpt (a few paragraphs) into a new `fixtures/<slug>.txt` file. End the excerpt with `■`.
+2. Add an entry to `index.json` with `slug`, `title`, `subtitle`, `file`, `date`, and `source` (archive.org details page). Keep the list sorted by date.
+3. Use short, readable subtitles (they’re curated, not extracted).
+4. Run `go test ./internal/demo` to ensure the fixtures load and sort correctly.
+
 They are included locally so demo mode works offline for all users. The Online Books Page notes that no issue or contribution copyright renewals were found for this serial; please verify suitability for your jurisdiction if reusing elsewhere, especially for the later excerpts.
