@@ -26,7 +26,9 @@ func (m Model) browseView() string {
 		termWidth = ui.DefaultWidth
 	}
 	contentWidth := ui.ReaderContentWidth(termWidth)
+	indent := ui.ArticleIndent(ui.ArticleRenderOptions{TermWidth: termWidth, WrapWidth: contentWidth, Center: true})
 
+	b.WriteString("\n")
 	header := styles.Header.Render(m.sectionTitle)
 	b.WriteString(header + "\n")
 	b.WriteString(ui.AccentRule(contentWidth, accentStyles) + "\n")
@@ -62,16 +64,14 @@ func (m Model) browseView() string {
 		numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
 		prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(m.allItems)))
 		dateWidth := ui.DefaultDateWidth
-		useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth
+		dateGap := ui.DefaultDateGap
+		useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth+dateGap
 		if useCompactDates {
 			dateWidth = len("02.01.06")
 		}
-		layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth)
+		layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth+dateGap)
 		prefixPad := strings.Repeat(" ", prefixWidth)
-		subtitleWidth := contentWidth - 4
-		if subtitleWidth < 1 {
-			subtitleWidth = 1
-		}
+		subtitleWidth := layout.TitleWidth
 
 		for i := start; i < end; i++ {
 			item := items[i]
@@ -91,12 +91,12 @@ func (m Model) browseView() string {
 			}
 			dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
 
-			titleLines := padLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines)
+			titleLines := limitLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines, layout.TitleWidth)
 			for lineIdx, line := range titleLines {
 				if lineIdx == 0 {
 					paddedTitle := fmt.Sprintf("%-*s", layout.TitleWidth, line)
 					b.WriteString(fmt.Sprintf("%s%s%s\n",
-						num,
+						lineStyle.Render(num),
 						lineStyle.Render(paddedTitle),
 						dateStyle.Render(dateColumn),
 					))
@@ -110,13 +110,13 @@ func (m Model) browseView() string {
 			}
 
 			desc := item.CleanDescription()
-			subtitleLines := padLines(ui.WrapLines(desc, subtitleWidth), browseSubtitleLines)
+			subtitleLines := limitLines(ui.WrapLines(desc, subtitleWidth), browseSubtitleLines, subtitleWidth)
 			for _, line := range subtitleLines {
 				if line == "" {
-					b.WriteString("    \n")
+					b.WriteString(prefixPad + "\n")
 					continue
 				}
-				b.WriteString(fmt.Sprintf("    %s\n", subtitleStyle.Render(line)))
+				b.WriteString(fmt.Sprintf("%s%s\n", prefixPad, subtitleStyle.Render(line)))
 			}
 
 			b.WriteString("\n")
@@ -130,7 +130,12 @@ func (m Model) browseView() string {
 	b.WriteString("\n\n")
 	b.WriteString(styles.Help.Render(browseHelpText))
 
-	return b.String()
+	content := b.String()
+	if indent > 0 {
+		content = ui.IndentBlock(content, indent)
+	}
+
+	return content
 }
 
 func (m Model) articleView() string {
@@ -238,4 +243,37 @@ func padLines(lines []string, count int) []string {
 		lines = append(lines, "")
 	}
 	return lines
+}
+
+func limitLines(lines []string, count, width int) []string {
+	if count <= 0 {
+		return nil
+	}
+	if len(lines) > count {
+		trimmed := append([]string(nil), lines[:count]...)
+		lastIdx := count - 1
+		trimmed[lastIdx] = addEllipsis(trimmed[lastIdx], width)
+		lines = trimmed
+	}
+	return padLines(lines, count)
+}
+
+func addEllipsis(line string, width int) string {
+	line = strings.TrimRight(line, " ")
+	if width <= 0 {
+		if line == "" {
+			return "..."
+		}
+		return line + "..."
+	}
+	if width <= 3 {
+		return strings.Repeat(".", width)
+	}
+	if line == "" {
+		return "..."
+	}
+	if len(line)+3 <= width {
+		return line + "..."
+	}
+	return ui.Truncate(line, width)
 }

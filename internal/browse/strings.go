@@ -6,7 +6,7 @@ const (
 	articleLoadingHelp     = "b/← back • q quit"
 	browseTitleLines       = 2
 	browseSubtitleLines    = 2
-	browseReservedLines    = 7
+	browseReservedLines    = 8
 	browseMinVisibleLines  = 5
 	browseItemHeight       = browseTitleLines + browseSubtitleLines + 1
 	articleReservedLines   = 2
