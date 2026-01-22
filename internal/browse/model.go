@@ -31,14 +31,29 @@ type articleMsg struct {
 	fetchDuration time.Duration
 }
 
+type sectionMsg struct {
+	section string
+	title   string
+	items   []rss.Item
+	err     error
+}
+
 type Model struct {
 	allItems      []rss.Item
 	filteredItems []rss.Item
 	sectionTitle  string
-	cursor        int
-	width         int
-	height        int
-	searchQuery   string
+	sections      []rss.SectionInfo
+	sectionIndex  int
+
+	pendingSection      string
+	pendingSectionIndex int
+	sectionLoading      bool
+	sectionErr          error
+
+	cursor      int
+	width       int
+	height      int
+	searchQuery string
 
 	mode         viewMode
 	loading      bool
@@ -58,21 +73,52 @@ type Model struct {
 	opts Options
 }
 
-func NewModel(items []rss.Item, sectionTitle string, opts Options) Model {
+func NewModel(section string, items []rss.Item, sectionTitle string, opts Options) Model {
 	w, h := ui.TermSize(int(os.Stdout.Fd()))
+	sections := rss.SectionList()
+	sectionIndex, sections := resolveSectionIndex(section, sections)
 	return Model{
-		allItems:      items,
-		filteredItems: items,
-		sectionTitle:  sectionTitle,
-		width:         w,
-		height:        h,
-		mode:          modeBrowse,
-		opts:          opts,
+		allItems:            items,
+		filteredItems:       items,
+		sectionTitle:        sectionTitle,
+		sections:            sections,
+		sectionIndex:        sectionIndex,
+		width:               w,
+		height:              h,
+		mode:                modeBrowse,
+		opts:                opts,
+		pendingSectionIndex: -1,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
 	return nil
+}
+
+func resolveSectionIndex(section string, sections []rss.SectionInfo) (int, []rss.SectionInfo) {
+	trimmed := strings.TrimSpace(section)
+	normalized := strings.ToLower(trimmed)
+	if normalized == "" {
+		normalized = trimmed
+	}
+
+	path := normalized
+	if resolved, ok := rss.Sections[normalized]; ok {
+		path = resolved
+	}
+
+	for i, info := range sections {
+		if info.Path == path {
+			return i, sections
+		}
+	}
+
+	if trimmed == "" {
+		trimmed = path
+	}
+	custom := rss.SectionInfo{Primary: trimmed, Path: path, Aliases: []string{trimmed}}
+	sections = append([]rss.SectionInfo{custom}, sections...)
+	return 0, sections
 }
 
 func (m *Model) applySearch() {
@@ -123,8 +169,37 @@ func fetchArticleCmd(url string, debug bool) tea.Cmd {
 	}
 }
 
+func fetchSectionCmd(section string) tea.Cmd {
+	return func() tea.Msg {
+		title, items, err := loadSection(section)
+		return sectionMsg{section: section, title: title, items: items, err: err}
+	}
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case sectionMsg:
+		if msg.section != m.pendingSection {
+			return m, nil
+		}
+		pendingIndex := m.pendingSectionIndex
+		m.sectionLoading = false
+		m.pendingSection = ""
+		m.pendingSectionIndex = -1
+		if msg.err != nil {
+			m.sectionErr = msg.err
+			return m, nil
+		}
+		m.sectionErr = nil
+		if pendingIndex >= 0 {
+			m.sectionIndex = pendingIndex
+		}
+		m.sectionTitle = msg.title
+		m.allItems = msg.items
+		m.filteredItems = msg.items
+		m.cursor = 0
+		m.applySearch()
+		return m, nil
 	case articleMsg:
 		if m.mode != modeArticle || msg.url != m.pendingURL {
 			return m, nil
@@ -178,6 +253,10 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		} else {
 			return m, tea.Quit
 		}
+	case tea.KeyTab:
+		return m.queueSectionChange(1)
+	case tea.KeyShiftTab:
+		return m.queueSectionChange(-1)
 	case tea.KeyBackspace:
 		if len(m.searchQuery) > 0 {
 			m.searchQuery = m.searchQuery[:len(m.searchQuery)-1]
@@ -269,6 +348,35 @@ func (m Model) updateArticle(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	m.clampArticleScroll()
 	return m, nil
+}
+
+func (m Model) queueSectionChange(delta int) (tea.Model, tea.Cmd) {
+	if len(m.sections) == 0 {
+		return m, nil
+	}
+
+	baseIndex := m.sectionIndex
+	if m.sectionLoading && m.pendingSectionIndex >= 0 {
+		baseIndex = m.pendingSectionIndex
+	}
+
+	nextIndex := baseIndex + delta
+	if nextIndex < 0 {
+		nextIndex = len(m.sections) - 1
+	} else if nextIndex >= len(m.sections) {
+		nextIndex = 0
+	}
+
+	nextSection := m.sections[nextIndex].Primary
+	if m.pendingSection == nextSection && m.sectionLoading {
+		return m, nil
+	}
+
+	m.pendingSection = nextSection
+	m.pendingSectionIndex = nextIndex
+	m.sectionLoading = true
+	m.sectionErr = nil
+	return m, fetchSectionCmd(nextSection)
 }
 
 func (m *Model) refreshArticleLines() {

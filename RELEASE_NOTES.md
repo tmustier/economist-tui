@@ -3,6 +3,7 @@
 ## v0.2.1
 
 - **Reader layout**: keep article headers full width when body is in two-column mode.
+- Add tab/shift+tab section cycling in browse mode with updated help text.
 
 ## v0.2.0
 
