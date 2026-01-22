@@ -11,6 +11,7 @@ type BrowseStyles struct {
 	Header   lipgloss.Style
 	Rule     lipgloss.Style
 	Title    lipgloss.Style
+	Subtitle lipgloss.Style
 	Selected lipgloss.Style
 	Dim      lipgloss.Style
 	Help     lipgloss.Style
@@ -100,18 +101,22 @@ func newNoColorStyles() Styles {
 
 func NewBrowseStyles(noColor bool) BrowseStyles {
 	theme := CurrentTheme()
-	header := lipgloss.NewStyle().Bold(true).Foreground(theme.Text)
+	body := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: BodyColorLightANSI, Dark: BodyColorDarkANSI})
+	header := lipgloss.NewStyle().Bold(true).Foreground(theme.Brand)
 	rule := lipgloss.NewStyle().Foreground(theme.Border)
-	title := lipgloss.NewStyle().Bold(true).Foreground(theme.Text)
+	title := body.Copy().Bold(true)
+	subtitle := lipgloss.NewStyle().Foreground(theme.TextMuted)
 	selected := lipgloss.NewStyle().Bold(true).Foreground(theme.Brand)
 	dim := lipgloss.NewStyle().Foreground(theme.TextFaint)
 	help := lipgloss.NewStyle().Foreground(theme.TextFaint)
 	search := lipgloss.NewStyle().Foreground(theme.TextFaint)
 
 	if noColor {
+		body = lipgloss.NewStyle()
 		header = lipgloss.NewStyle().Bold(true)
 		rule = lipgloss.NewStyle()
-		title = lipgloss.NewStyle().Bold(true)
+		title = body.Copy().Bold(true)
+		subtitle = lipgloss.NewStyle()
 		selected = lipgloss.NewStyle().Bold(true)
 		dim = lipgloss.NewStyle()
 		help = lipgloss.NewStyle()
@@ -122,6 +127,7 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 		Header:   header,
 		Rule:     rule,
 		Title:    title,
+		Subtitle: subtitle,
 		Selected: selected,
 		Dim:      dim,
 		Help:     help,
