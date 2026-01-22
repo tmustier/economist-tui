@@ -363,11 +363,15 @@ func columnize(text string, columnWidth int, columnCount int) string {
 }
 
 func padRightANSI(text string, width int) string {
-	pad := width - ansi.PrintableRuneWidth(text)
-	if pad <= 0 {
+	if width <= 0 {
 		return text
 	}
-	return fmt.Sprintf("%s%s", text, strings.Repeat(" ", pad))
+	trimmed := cansi.Truncate(text, width, "")
+	pad := width - ansi.PrintableRuneWidth(trimmed)
+	if pad <= 0 {
+		return trimmed
+	}
+	return fmt.Sprintf("%s%s", trimmed, strings.Repeat(" ", pad))
 }
 
 func normalizeParagraphSpacing(text string) string {
