@@ -63,13 +63,8 @@ func (m Model) browseView() string {
 
 		numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
 		prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(m.allItems)))
-		dateWidth := ui.DefaultDateWidth
-		dateGap := ui.DefaultDateGap
-		useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth+dateGap
-		if useCompactDates {
-			dateWidth = len("02.01.06")
-		}
-		layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth+dateGap)
+		dateLayout := ui.ResolveDateLayout(contentWidth, prefixWidth)
+		layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateLayout.ColumnWidth)
 		prefixPad := strings.Repeat(" ", prefixWidth)
 		subtitleWidth := layout.TitleWidth
 
@@ -86,12 +81,12 @@ func (m Model) browseView() string {
 			num := fmt.Sprintf("%*d. ", numWidth, i+1)
 			title := item.CleanTitle()
 			date := item.FormattedDate()
-			if useCompactDates {
+			if dateLayout.Compact {
 				date = item.CompactDate()
 			}
 			dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
 
-			titleLines := limitLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines, layout.TitleWidth)
+			titleLines := ui.LimitLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines, layout.TitleWidth)
 			if len(titleLines) == 0 {
 				titleLines = []string{""}
 			}
@@ -113,7 +108,7 @@ func (m Model) browseView() string {
 			}
 
 			desc := item.CleanDescription()
-			subtitleLines := limitLines(ui.WrapLines(desc, subtitleWidth), browseSubtitleLines, subtitleWidth)
+			subtitleLines := ui.LimitLines(ui.WrapLines(desc, subtitleWidth), browseSubtitleLines, subtitleWidth)
 			for _, line := range subtitleLines {
 				if line == "" {
 					b.WriteString(prefixPad + "\n")
@@ -230,37 +225,4 @@ func padView(view string, height int) string {
 		return view
 	}
 	return view + strings.Repeat("\n", height-lines)
-}
-
-func limitLines(lines []string, count, width int) []string {
-	if count <= 0 {
-		return nil
-	}
-	if len(lines) > count {
-		trimmed := append([]string(nil), lines[:count]...)
-		lastIdx := count - 1
-		trimmed[lastIdx] = addEllipsis(trimmed[lastIdx], width)
-		return trimmed
-	}
-	return lines
-}
-
-func addEllipsis(line string, width int) string {
-	line = strings.TrimRight(line, " ")
-	if width <= 0 {
-		if line == "" {
-			return "..."
-		}
-		return line + "..."
-	}
-	if width <= 3 {
-		return strings.Repeat(".", width)
-	}
-	if line == "" {
-		return "..."
-	}
-	if len(line)+3 <= width {
-		return line + "..."
-	}
-	return ui.Truncate(line, width)
 }

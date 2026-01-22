@@ -152,13 +152,8 @@ func printHeadlines(items []rss.Item, title string) {
 
 	numWidth := len(fmt.Sprintf("%d", len(items)))
 	prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(items)))
-	dateWidth := ui.DefaultDateWidth
-	dateGap := ui.DefaultDateGap
-	useCompactDates := contentWidth < prefixWidth+ui.MinTitleWidth+dateWidth+dateGap
-	if useCompactDates {
-		dateWidth = len("02.01.06")
-	}
-	layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateWidth+dateGap)
+	dateLayout := ui.ResolveDateLayout(contentWidth, prefixWidth)
+	layout := ui.NewHeadlineLayout(contentWidth, prefixWidth, dateLayout.ColumnWidth)
 	prefixPad := strings.Repeat(" ", prefixWidth)
 	subtitleWidth := layout.TitleWidth
 
@@ -166,7 +161,7 @@ func printHeadlines(items []rss.Item, title string) {
 		num := fmt.Sprintf("%*d. ", numWidth, i+1)
 		headline := item.CleanTitle()
 		date := item.FormattedDate()
-		if useCompactDates {
+		if dateLayout.Compact {
 			date = item.CompactDate()
 		}
 		dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
