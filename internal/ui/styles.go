@@ -131,13 +131,13 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 
 func NewArticleStyles(noColor bool) ArticleStyles {
 	theme := CurrentTheme()
-	overtitle := lipgloss.NewStyle().Foreground(theme.TextMuted).Faint(true)
-	section := lipgloss.NewStyle().Foreground(theme.Brand)
+	body := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: BodyColorLightANSI, Dark: BodyColorDarkANSI})
+	overtitle := body.Copy()
+	section := lipgloss.NewStyle().Bold(true).Foreground(theme.Brand)
 	title := lipgloss.NewStyle().Bold(true).Foreground(theme.Brand)
-	subtitle := lipgloss.NewStyle().Foreground(theme.TextMuted).Faint(true)
+	subtitle := body.Copy()
 	date := lipgloss.NewStyle().Foreground(theme.TextFaint).Faint(true)
 	rule := lipgloss.NewStyle().Foreground(theme.Border)
-	body := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: BodyColorLightANSI, Dark: BodyColorDarkANSI})
 
 	if noColor {
 		overtitle = lipgloss.NewStyle()
