@@ -1,7 +1,7 @@
 # Economist TUI
 
 Responsive Terminal UI and CLI to browse and read The Economist with your subscription. Unofficial.
-- `economist browse` starts the TUI with current headlines (requires login)
+- `economist browse` starts the TUI with current headlines (requires login with `economist login`)
 - `economist demo` starts the TUI with pre-loaded archived articles
 
 ## Screenshots (from `demo` mode)
