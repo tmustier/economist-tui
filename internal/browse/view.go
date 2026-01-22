@@ -92,6 +92,9 @@ func (m Model) browseView() string {
 			dateColumn := fmt.Sprintf("%*s", layout.DateWidth, date)
 
 			titleLines := limitLines(ui.WrapLines(title, layout.TitleWidth), browseTitleLines, layout.TitleWidth)
+			if len(titleLines) == 0 {
+				titleLines = []string{""}
+			}
 			for lineIdx, line := range titleLines {
 				if lineIdx == 0 {
 					paddedTitle := fmt.Sprintf("%-*s", layout.TitleWidth, line)
@@ -229,22 +232,6 @@ func padView(view string, height int) string {
 	return view + strings.Repeat("\n", height-lines)
 }
 
-func padLines(lines []string, count int) []string {
-	if count <= 0 {
-		return nil
-	}
-	if len(lines) > count {
-		return lines[:count]
-	}
-	if len(lines) == 0 {
-		lines = []string{}
-	}
-	for len(lines) < count {
-		lines = append(lines, "")
-	}
-	return lines
-}
-
 func limitLines(lines []string, count, width int) []string {
 	if count <= 0 {
 		return nil
@@ -253,9 +240,9 @@ func limitLines(lines []string, count, width int) []string {
 		trimmed := append([]string(nil), lines[:count]...)
 		lastIdx := count - 1
 		trimmed[lastIdx] = addEllipsis(trimmed[lastIdx], width)
-		lines = trimmed
+		return trimmed
 	}
-	return padLines(lines, count)
+	return lines
 }
 
 func addEllipsis(line string, width int) string {
