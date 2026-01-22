@@ -8,6 +8,7 @@ import (
 
 func RenderArticleHeader(art *article.Article, styles ArticleStyles) string {
 	var sb strings.Builder
+	sb.WriteString("\n")
 	if art.Overtitle != "" {
 		sb.WriteString(styles.Overtitle.Render(art.Overtitle))
 		sb.WriteString("\n")
