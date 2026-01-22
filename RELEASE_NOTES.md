@@ -1,5 +1,10 @@
 # Release Notes
 
+## v0.3.5
+
+- **Browse navigation**: reduce item truncation on short terminals by collapsing subtitle lines before dropping items.
+- **Demo mode**: refresh mid-century subtitles for readability.
+
 ## v0.3.4
 
 - **Demo mode**: add Suez, Hungary, Korea, Algeria, and Malaya archive fixtures.
