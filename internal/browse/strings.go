@@ -9,7 +9,6 @@ const (
 	browseFooterPadding    = 1
 	browseFooterGapLines   = 0
 	browseMinVisibleLines  = 5
-	browseItemHeight       = browseTitleLines + browseSubtitleLines + 1
 	articleFooterLines     = 4
 	articleFooterPadding   = 1
 	articleFooterGapLines  = 0

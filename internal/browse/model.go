@@ -298,7 +298,8 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case tea.KeyUp:
 		if m.cursor > 0 {
-			maxVisible := m.maxVisibleItems()
+			layout := m.browseLayout(len(m.filteredItems))
+			maxVisible := layout.maxVisible
 			if m.cursor == m.browseStart && m.browseStart > 0 {
 				m.cursor--
 				m.browseStart--
@@ -311,10 +312,8 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case tea.KeyDown:
 		if m.cursor < len(m.filteredItems)-1 {
-			maxVisible := m.maxVisibleItems()
-			if maxVisible < 1 {
-				maxVisible = 1
-			}
+			layout := m.browseLayout(len(m.filteredItems))
+			maxVisible := layout.maxVisible
 			lastVisible := m.browseStart + maxVisible - 1
 			if m.cursor == lastVisible {
 				m.cursor++
@@ -330,7 +329,8 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case tea.KeyLeft:
 		itemCount := len(m.filteredItems)
 		if itemCount > 0 {
-			maxVisible := m.maxVisibleItems()
+			layout := m.browseLayout(len(m.filteredItems))
+			maxVisible := layout.maxVisible
 			offset := m.cursor - m.browseStart
 			if offset < 0 {
 				offset = 0
@@ -346,7 +346,8 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case tea.KeyRight:
 		itemCount := len(m.filteredItems)
 		if itemCount > 0 {
-			maxVisible := m.maxVisibleItems()
+			layout := m.browseLayout(len(m.filteredItems))
+			maxVisible := layout.maxVisible
 			maxStart := ui.Max(0, itemCount-maxVisible)
 			offset := m.cursor - m.browseStart
 			if offset < 0 {
@@ -366,7 +367,8 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case tea.KeyEnd:
 		itemCount := len(m.filteredItems)
 		if itemCount > 0 {
-			maxVisible := m.maxVisibleItems()
+			layout := m.browseLayout(len(m.filteredItems))
+			maxVisible := layout.maxVisible
 			m.cursor = itemCount - 1
 			m.browseStart = ui.Max(0, itemCount-maxVisible)
 		}
@@ -522,23 +524,8 @@ func (m Model) articleRenderOptions() ui.ArticleRenderOptions {
 }
 
 func (m Model) pageSize(itemCount int) int {
-	termWidth := m.width
-	if termWidth <= 0 {
-		termWidth = ui.DefaultWidth
-	}
-	contentWidth := ui.ReaderContentWidth(termWidth)
-	helpLineCount := len(browseHelpLines(contentWidth))
-
-	page := m.pageSizeWithFooter(helpLineCount, true)
-	if itemCount <= page {
-		page = m.pageSizeWithFooter(helpLineCount, false)
-	}
-	return page
-}
-
-func (m Model) pageSizeWithFooter(helpLineCount int, showPosition bool) int {
-	spec := browseLayoutSpec(helpLineCount, showPosition)
-	return ui.PageSize(m.height, browseItemHeight, spec)
+	layout := m.browseLayout(itemCount)
+	return layout.maxVisible
 }
 
 func (m Model) articleViewHeight() int {
@@ -546,12 +533,63 @@ func (m Model) articleViewHeight() int {
 	return spec.VisibleLines(m.height)
 }
 
-func (m Model) maxVisibleItems() int {
-	maxVisible := m.pageSize(len(m.filteredItems))
+type browseLayout struct {
+	maxVisible    int
+	titleLines    int
+	subtitleLines int
+	showPosition  bool
+}
+
+func (m Model) browseLayout(itemCount int) browseLayout {
+	helpLineCount := m.browseHelpLineCount()
+	layout := m.browseLayoutForFooter(helpLineCount, true)
+	if itemCount <= layout.maxVisible {
+		layout = m.browseLayoutForFooter(helpLineCount, false)
+	}
+	return layout
+}
+
+func (m Model) browseLayoutForFooter(helpLineCount int, showPosition bool) browseLayout {
+	spec := browseLayoutSpec(helpLineCount, showPosition)
+	visibleLines := spec.VisibleLines(m.height)
+	titleLines, subtitleLines := resolveBrowseItemLines(visibleLines)
+	itemHeight := titleLines + subtitleLines + 1
+	maxVisible := visibleLines / itemHeight
 	if maxVisible < 1 {
 		maxVisible = 1
 	}
-	return maxVisible
+	return browseLayout{
+		maxVisible:    maxVisible,
+		titleLines:    titleLines,
+		subtitleLines: subtitleLines,
+		showPosition:  showPosition,
+	}
+}
+
+func (m Model) browseHelpLineCount() int {
+	termWidth := m.width
+	if termWidth <= 0 {
+		termWidth = ui.DefaultWidth
+	}
+	contentWidth := ui.ReaderContentWidth(termWidth)
+	return len(browseHelpLines(contentWidth))
+}
+
+func resolveBrowseItemLines(visibleLines int) (int, int) {
+	titleLines := browseTitleLines
+	subtitleLines := browseSubtitleLines
+	itemHeight := titleLines + subtitleLines + 1
+
+	for subtitleLines > 0 && visibleLines < itemHeight*2 {
+		subtitleLines--
+		itemHeight--
+	}
+	for titleLines > 1 && visibleLines < itemHeight*2 {
+		titleLines--
+		itemHeight--
+	}
+
+	return titleLines, subtitleLines
 }
 
 func (m *Model) ensureBrowseWindow() {
@@ -562,7 +600,8 @@ func (m *Model) ensureBrowseWindow() {
 		return
 	}
 
-	maxVisible := m.maxVisibleItems()
+	layout := m.browseLayout(itemCount)
+	maxVisible := layout.maxVisible
 	if m.cursor < 0 {
 		m.cursor = 0
 	}

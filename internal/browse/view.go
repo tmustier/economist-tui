@@ -56,11 +56,13 @@ func (m Model) browseView() (string, string) {
 
 	items := m.filteredItems
 	maxVisible := 0
+	layout := browseLayout{}
 
 	if len(items) == 0 {
 		b.WriteString("\n" + styles.Dim.Render("  No matching articles") + "\n")
 	} else {
-		maxVisible = m.pageSize(len(items))
+		layout := m.browseLayout(len(items))
+		maxVisible = layout.maxVisible
 		if maxVisible > len(items) {
 			maxVisible = len(items)
 		}
@@ -102,8 +104,8 @@ func (m Model) browseView() (string, string) {
 			Width:            contentWidth,
 			PrefixWidth:      prefixWidth,
 			RightColumnWidth: dateLayout.ColumnWidth,
-			TitleLines:       browseTitleLines,
-			SubtitleLines:    browseSubtitleLines,
+			TitleLines:       layout.titleLines,
+			SubtitleLines:    layout.subtitleLines,
 			ItemGapLines:     1,
 			SelectedIndex:    m.cursor,
 			Start:            start,
@@ -128,7 +130,7 @@ func (m Model) browseView() (string, string) {
 	divider := ui.SectionRule(contentWidth, accentStyles)
 	helpLines := browseHelpLines(contentWidth)
 	footerLines := make([]string, 0, len(helpLines)+1)
-	if len(items) > maxVisible {
+	if layout.showPosition && len(items) > 0 {
 		footerLines = append(footerLines, styles.Dim.Render(fmt.Sprintf("(%d/%d)", m.cursor+1, len(items))))
 	}
 	for _, line := range helpLines {
