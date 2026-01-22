@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.3.4
+
+- **Demo mode**: add Suez, Hungary, Korea, Algeria, and Malaya archive fixtures.
+
 ## v0.3.3
 
 - **Demo mode**: add Lincoln assassination and Stalin death fixtures, plus archive.org source links.
