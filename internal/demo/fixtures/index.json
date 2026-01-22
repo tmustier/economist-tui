@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "fair-exchange",
+    "title": "Fair Exchange",
+    "subtitle": "Destroyers for bases, and a new alliance",
+    "file": "fair-exchange.txt",
+    "date": "1940-09-07"
+  },
+  {
+    "slug": "german-europe",
+    "title": "German Europe",
+    "subtitle": "Conquest and the limits of domination",
+    "file": "german-europe.txt",
+    "date": "1940-09-07"
+  },
+  {
+    "slug": "june-the-sixth",
+    "title": "June the Sixth",
+    "subtitle": "Dunkirk’s reversal and the duty of liberation",
+    "file": "june-the-sixth.txt",
+    "date": "1944-06-10"
+  },
+  {
+    "slug": "atom-bomb",
+    "title": "The atom bomb",
+    "subtitle": "A triumph of science and the terror of war",
+    "file": "atom-bomb.txt",
+    "date": "1945-08-11"
+  },
+  {
+    "slug": "human-use-of-human-beings",
+    "title": "The Human Use of Human Beings",
+    "subtitle": "Cybernetics and society",
+    "file": "human-use-of-human-beings.txt",
+    "date": "1951-07-14"
+  },
+  {
+    "slug": "burnt-fingers",
+    "title": "Burnt Fingers on the Public Pulse",
+    "subtitle": "Polls, Univac, and the election night surprise",
+    "file": "burnt-fingers-public-pulse.txt",
+    "date": "1952-11-22"
+  },
+  {
+    "slug": "rockets-for-reindeer",
+    "title": "Rockets for Reindeer",
+    "subtitle": "The promise and limits of space travel",
+    "file": "rockets-for-reindeer.txt",
+    "date": "1953-12-26"
+  },
+  {
+    "slug": "electronic-abacus",
+    "title": "Electronic Abacus",
+    "subtitle": "Lyons, Leo, and the electronic office",
+    "file": "electronic-abacus.txt",
+    "date": "1954-03-13"
+  },
+  {
+    "slug": "president-to-the-rescue",
+    "title": "President to the Rescue?",
+    "subtitle": "Unemployment figures and mid-term politics",
+    "file": "president-to-the-rescue.txt",
+    "date": "1954-10-30"
+  },
+  {
+    "slug": "freeing-electronics",
+    "title": "Freeing Electronics",
+    "subtitle": "AT&T, IBM, and the $40,000-a-month brains",
+    "file": "freeing-electronics.txt",
+    "date": "1956-02-04"
+  },
+  {
+    "slug": "both-sides-moon",
+    "title": "Both Sides of the “Moon”",
+    "subtitle": "The little ball in the sky and the man on the ground",
+    "file": "both-sides-moon.txt",
+    "date": "1957-10-12"
+  },
+  {
+    "slug": "riding-on-the-sputnik",
+    "title": "Riding on the Sputnik",
+    "subtitle": "Prestige, peace, and the summit pitch",
+    "file": "riding-on-the-sputnik.txt",
+    "date": "1957-11-09"
+  },
+  {
+    "slug": "young-mans-america",
+    "title": "Young Man's America?",
+    "subtitle": "Kennedy's narrow victory and a new mandate",
+    "file": "young-mans-america.txt",
+    "date": "1960-11-12"
+  },
+  {
+    "slug": "imagined-markets",
+    "title": "Imaginary markets and measured optimism",
+    "subtitle": "A fictional briefing on sentiment and supply"
+  },
+  {
+    "slug": "soft-landing",
+    "title": "Why the demo economy always lands softly",
+    "subtitle": "Illustrative data without real-world stakes"
+  },
+  {
+    "slug": "office-coffee",
+    "title": "The quiet revolution of office coffee",
+    "subtitle": "Productivity gains in the imaginary workplace"
+  },
+  {
+    "slug": "bureaucracy",
+    "title": "Small experiments in better bureaucracy",
+    "subtitle": "A fictional reform agenda for calmer Mondays"
+  }
+]

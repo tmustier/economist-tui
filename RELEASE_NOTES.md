@@ -1,5 +1,9 @@
 # Release Notes
 
+## v0.2.8
+
+- **Demo mode**: add historical fixtures (Sputnik, cybernetics, space travel, Kennedy election) and load demo metadata from a single index.
+
 ## v0.2.7
 
 - **Reader layout**: prevent column text from bleeding into neighboring columns.

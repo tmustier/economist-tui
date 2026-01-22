@@ -1,8 +1,10 @@
 package demo
 
 import (
-	_ "embed"
+	"embed"
+	"encoding/json"
 	"fmt"
+	"path"
 	"sort"
 	"strings"
 	"time"
@@ -11,54 +13,21 @@ import (
 	"github.com/tmustier/economist-tui/internal/rss"
 )
 
-//go:embed fixtures/fair-exchange.txt
-var fairExchangeFixture string
+//go:embed fixtures/*.txt fixtures/index.json
+var fixturesFS embed.FS
 
-//go:embed fixtures/german-europe.txt
-var germanEuropeFixture string
-
-//go:embed fixtures/june-the-sixth.txt
-var juneTheSixthFixture string
-
-//go:embed fixtures/atom-bomb.txt
-var atomBombFixture string
-
-//go:embed fixtures/burnt-fingers-public-pulse.txt
-var burntFingersPublicPulseFixture string
-
-//go:embed fixtures/electronic-abacus.txt
-var electronicAbacusFixture string
-
-//go:embed fixtures/president-to-the-rescue.txt
-var presidentToTheRescueFixture string
-
-//go:embed fixtures/freeing-electronics.txt
-var freeingElectronicsFixture string
-
-//go:embed fixtures/both-sides-moon.txt
-var bothSidesMoonFixture string
-
-//go:embed fixtures/young-mans-america.txt
-var youngMansAmericaFixture string
+const fixturesIndexPath = "fixtures/index.json"
 
 const DefaultSection = "leaders"
 
 const demoSectionTitle = "Leaders - demo"
 
 var demoBaseDate = time.Date(2026, time.January, 22, 9, 0, 0, 0, time.UTC)
-var demoArchiveDate = time.Date(1940, time.September, 7, 9, 0, 0, 0, time.UTC)
-var demoDdayDate = time.Date(1944, time.June, 10, 9, 0, 0, 0, time.UTC)
-var demoAtomBombDate = time.Date(1945, time.August, 11, 9, 0, 0, 0, time.UTC)
-var demoUnivacDate = time.Date(1952, time.November, 22, 9, 0, 0, 0, time.UTC)
-var demoElectronicAbacusDate = time.Date(1954, time.March, 13, 9, 0, 0, 0, time.UTC)
-var demoPresidentRescueDate = time.Date(1954, time.October, 30, 9, 0, 0, 0, time.UTC)
-var demoFreeingElectronicsDate = time.Date(1956, time.February, 4, 9, 0, 0, 0, time.UTC)
-var demoSputnikDate = time.Date(1957, time.October, 12, 9, 0, 0, 0, time.UTC)
-var demoKennedyElectionDate = time.Date(1960, time.November, 12, 9, 0, 0, 0, time.UTC)
 
 type Source struct {
 	sections map[string]sectionData
 	articles map[string]*article.Article
+	loadErr  error
 }
 
 type sectionData struct {
@@ -66,12 +35,12 @@ type sectionData struct {
 	items []rss.Item
 }
 
-type demoArticle struct {
-	slug     string
-	title    string
-	subtitle string
-	content  string
-	date     time.Time
+type fixtureSpec struct {
+	Slug     string `json:"slug"`
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	File     string `json:"file,omitempty"`
+	Date     string `json:"date,omitempty"`
 }
 
 func NewSource() *Source {
@@ -79,11 +48,16 @@ func NewSource() *Source {
 		sections: make(map[string]sectionData),
 		articles: make(map[string]*article.Article),
 	}
-	source.addLeaders()
+	if err := source.addLeaders(); err != nil {
+		source.loadErr = err
+	}
 	return source
 }
 
 func (s *Source) Section(section string) (string, []rss.Item, error) {
+	if s.loadErr != nil {
+		return "", nil, s.loadErr
+	}
 	if section == "" {
 		section = DefaultSection
 	}
@@ -98,6 +72,9 @@ func (s *Source) Section(section string) (string, []rss.Item, error) {
 }
 
 func (s *Source) Article(url string) (*article.Article, error) {
+	if s.loadErr != nil {
+		return nil, s.loadErr
+	}
 	if art, ok := s.articles[url]; ok {
 		copy := *art
 		return &copy, nil
@@ -105,82 +82,10 @@ func (s *Source) Article(url string) (*article.Article, error) {
 	return nil, fmt.Errorf("demo article not found")
 }
 
-func (s *Source) addLeaders() {
-	articles := []demoArticle{
-		{
-			slug:     "fair-exchange",
-			title:    "Fair Exchange",
-			subtitle: "Destroyers for bases, and a new alliance",
-			content:  strings.TrimSpace(fairExchangeFixture),
-			date:     demoArchiveDate,
-		},
-		{
-			slug:     "german-europe",
-			title:    "German Europe",
-			subtitle: "Conquest and the limits of domination",
-			content:  strings.TrimSpace(germanEuropeFixture),
-			date:     demoArchiveDate,
-		},
-		{
-			slug:     "june-the-sixth",
-			title:    "June the Sixth",
-			subtitle: "Dunkirk’s reversal and the duty of liberation",
-			content:  strings.TrimSpace(juneTheSixthFixture),
-			date:     demoDdayDate,
-		},
-		{
-			slug:     "atom-bomb",
-			title:    "The atom bomb",
-			subtitle: "A triumph of science and the terror of war",
-			content:  strings.TrimSpace(atomBombFixture),
-			date:     demoAtomBombDate,
-		},
-		{
-			slug:     "burnt-fingers",
-			title:    "Burnt Fingers on the Public Pulse",
-			subtitle: "Polls, Univac, and the election night surprise",
-			content:  strings.TrimSpace(burntFingersPublicPulseFixture),
-			date:     demoUnivacDate,
-		},
-		{
-			slug:     "electronic-abacus",
-			title:    "Electronic Abacus",
-			subtitle: "Lyons, Leo, and the electronic office",
-			content:  strings.TrimSpace(electronicAbacusFixture),
-			date:     demoElectronicAbacusDate,
-		},
-		{
-			slug:     "president-to-the-rescue",
-			title:    "President to the Rescue?",
-			subtitle: "Unemployment figures and mid-term politics",
-			content:  strings.TrimSpace(presidentToTheRescueFixture),
-			date:     demoPresidentRescueDate,
-		},
-		{
-			slug:     "freeing-electronics",
-			title:    "Freeing Electronics",
-			subtitle: "AT&T, IBM, and the $40,000-a-month brains",
-			content:  strings.TrimSpace(freeingElectronicsFixture),
-			date:     demoFreeingElectronicsDate,
-		},
-		{
-			slug:     "both-sides-moon",
-			title:    "Both Sides of the “Moon”",
-			subtitle: "The little ball in the sky and the man on the ground",
-			content:  strings.TrimSpace(bothSidesMoonFixture),
-			date:     demoSputnikDate,
-		},
-		{
-			slug:     "young-mans-america",
-			title:    "Young Man's America?",
-			subtitle: "Kennedy's narrow victory and a new mandate",
-			content:  strings.TrimSpace(youngMansAmericaFixture),
-			date:     demoKennedyElectionDate,
-		},
-		{slug: "imagined-markets", title: "Imaginary markets and measured optimism", subtitle: "A fictional briefing on sentiment and supply"},
-		{slug: "soft-landing", title: "Why the demo economy always lands softly", subtitle: "Illustrative data without real-world stakes"},
-		{slug: "office-coffee", title: "The quiet revolution of office coffee", subtitle: "Productivity gains in the imaginary workplace"},
-		{slug: "bureaucracy", title: "Small experiments in better bureaucracy", subtitle: "A fictional reform agenda for calmer Mondays"},
+func (s *Source) addLeaders() error {
+	specs, err := loadFixtureSpecs()
+	if err != nil {
+		return err
 	}
 
 	type datedItem struct {
@@ -188,31 +93,42 @@ func (s *Source) addLeaders() {
 		published time.Time
 	}
 
-	datedItems := make([]datedItem, 0, len(articles))
-	for i, entry := range articles {
-		published := demoBaseDate.AddDate(0, 0, -i)
-		if !entry.date.IsZero() {
-			published = entry.date
+	datedItems := make([]datedItem, 0, len(specs))
+	for i, spec := range specs {
+		if spec.Slug == "" || spec.Title == "" {
+			return fmt.Errorf("fixture %d missing slug or title", i)
 		}
-		url := fmt.Sprintf("https://example.com/demo/%s", entry.slug)
+		published := demoBaseDate.AddDate(0, 0, -i)
+		if spec.Date != "" {
+			parsed, err := parseFixtureDate(spec.Date)
+			if err != nil {
+				return err
+			}
+			published = parsed
+		}
+		content, err := loadFixtureContent(spec.File)
+		if err != nil {
+			return err
+		}
+		content = strings.TrimSpace(content)
+		if content == "" {
+			content = buildContent(spec.Title)
+		}
+		url := fmt.Sprintf("https://example.com/demo/%s", spec.Slug)
 		datedItems = append(datedItems, datedItem{
 			item: rss.Item{
-				Title:       entry.title,
-				Description: entry.subtitle,
+				Title:       spec.Title,
+				Description: spec.Subtitle,
 				Link:        url,
 				GUID:        url,
 				PubDate:     published.Format(time.RFC1123Z),
 			},
 			published: published,
 		})
-		content := strings.TrimSpace(entry.content)
-		if content == "" {
-			content = buildContent(entry.title)
-		}
 		s.articles[url] = &article.Article{
 			Overtitle: "Leaders | Demo",
-			Title:     entry.title,
-			Subtitle:  entry.subtitle,
+			Title:     spec.Title,
+			Subtitle:  spec.Subtitle,
 			DateLine:  formatDateLine(published),
 			Content:   content,
 			URL:       url,
@@ -229,6 +145,7 @@ func (s *Source) addLeaders() {
 	}
 
 	s.sections[DefaultSection] = sectionData{title: demoSectionTitle, items: items}
+	return nil
 }
 
 func buildContent(title string) string {
@@ -259,4 +176,38 @@ func formatDateLine(t time.Time) string {
 		}
 	}
 	return fmt.Sprintf("%s %d%s %d", t.Format("Jan"), day, suffix, t.Year())
+}
+
+func loadFixtureSpecs() ([]fixtureSpec, error) {
+	data, err := fixturesFS.ReadFile(fixturesIndexPath)
+	if err != nil {
+		return nil, fmt.Errorf("read fixtures index: %w", err)
+	}
+	var specs []fixtureSpec
+	if err := json.Unmarshal(data, &specs); err != nil {
+		return nil, fmt.Errorf("parse fixtures index: %w", err)
+	}
+	if len(specs) == 0 {
+		return nil, fmt.Errorf("fixtures index is empty")
+	}
+	return specs, nil
+}
+
+func loadFixtureContent(name string) (string, error) {
+	if name == "" {
+		return "", nil
+	}
+	content, err := fixturesFS.ReadFile(path.Join("fixtures", name))
+	if err != nil {
+		return "", fmt.Errorf("read fixture %s: %w", name, err)
+	}
+	return string(content), nil
+}
+
+func parseFixtureDate(value string) (time.Time, error) {
+	parsed, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("parse fixture date %q: %w", value, err)
+	}
+	return time.Date(parsed.Year(), parsed.Month(), parsed.Day(), 9, 0, 0, 0, time.UTC), nil
 }
