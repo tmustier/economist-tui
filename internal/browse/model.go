@@ -40,9 +40,10 @@ type Model struct {
 	height        int
 	searchQuery   string
 
-	mode         viewMode
-	loading      bool
-	pendingURL   string
+	mode        viewMode
+	loading     bool
+	loadingItem *rss.Item
+	pendingURL  string
 	article      *article.Article
 	articleBase  string
 	articleLines []string
@@ -184,16 +185,17 @@ func (m Model) updateBrowse(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	case tea.KeyEnter:
 		if len(m.filteredItems) > 0 && m.cursor < len(m.filteredItems) {
-			url := m.filteredItems[m.cursor].Link
+			item := m.filteredItems[m.cursor]
 			m.mode = modeArticle
 			m.loading = true
-			m.pendingURL = url
+			m.loadingItem = &item
+			m.pendingURL = item.Link
 			m.articleErr = nil
 			m.article = nil
 			m.articleBase = ""
 			m.articleLines = nil
 			m.scroll = 0
-			return m, fetchArticleCmd(url, m.opts.Debug)
+			return m, fetchArticleCmd(item.Link, m.opts.Debug)
 		}
 	case tea.KeyUp:
 		if m.cursor > 0 {
@@ -236,6 +238,7 @@ func (m Model) updateArticle(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "b", "left":
 		m.mode = modeBrowse
 		m.loading = false
+		m.loadingItem = nil
 		m.pendingURL = ""
 		return m, nil
 	case "c":
@@ -248,6 +251,7 @@ func (m Model) updateArticle(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case tea.KeyEsc:
 		m.mode = modeBrowse
 		m.loading = false
+		m.loadingItem = nil
 		m.pendingURL = ""
 	case tea.KeyUp:
 		m.scroll--

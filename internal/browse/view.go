@@ -143,11 +143,9 @@ func (m Model) articleView() (string, string) {
 
 	var b strings.Builder
 	if m.loading {
-		b.WriteString("Loading article...")
-		content := b.String()
+		content := m.loadingSkeletonView()
 		footer := styles.Help.Render(articleLoadingHelp)
 		if indent > 0 {
-			content = ui.IndentBlock(content, indent)
 			footer = ui.IndentBlock(footer, indent)
 		}
 		return content, footer
@@ -215,4 +213,18 @@ func (m Model) articleView() (string, string) {
 	}
 
 	return content, footer
+}
+
+func (m Model) loadingSkeletonView() string {
+	header := ui.SkeletonHeader{
+		Section: m.sectionTitle,
+	}
+
+	if m.loadingItem != nil {
+		header.Title = m.loadingItem.CleanTitle()
+		header.Subtitle = m.loadingItem.CleanDescription()
+		header.Date = m.loadingItem.FormattedDate()
+	}
+
+	return ui.RenderArticleSkeleton(header, m.articleRenderOptions(), m.height)
 }
