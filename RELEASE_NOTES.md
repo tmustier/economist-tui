@@ -2,7 +2,7 @@
 
 ## v0.2.8
 
-- **Demo mode**: add historical fixtures (Sputnik, cybernetics, space travel, Kennedy election) and load demo metadata from a single index.
+- **Demo mode**: add historical fixtures (Sputnik, cybernetics, space travel, Kennedy election) and load demo metadata from a single index with flexible date parsing.
 
 ## v0.2.7
 

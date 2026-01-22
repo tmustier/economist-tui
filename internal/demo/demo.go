@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -204,10 +205,28 @@ func loadFixtureContent(name string) (string, error) {
 	return string(content), nil
 }
 
+var fixtureDateLayouts = []string{
+	"2006-01-02",
+	"Jan 2 2006",
+	"Jan 2, 2006",
+	"January 2 2006",
+	"January 2, 2006",
+}
+
+var fixtureOrdinalSuffix = regexp.MustCompile(`(\d+)(st|nd|rd|th)`)
+
 func parseFixtureDate(value string) (time.Time, error) {
-	parsed, err := time.Parse("2006-01-02", value)
-	if err != nil {
-		return time.Time{}, fmt.Errorf("parse fixture date %q: %w", value, err)
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return time.Time{}, fmt.Errorf("fixture date is empty")
 	}
-	return time.Date(parsed.Year(), parsed.Month(), parsed.Day(), 9, 0, 0, 0, time.UTC), nil
+	normalized := fixtureOrdinalSuffix.ReplaceAllString(trimmed, "$1")
+	normalized = strings.ReplaceAll(normalized, ",", "")
+	for _, layout := range fixtureDateLayouts {
+		parsed, err := time.Parse(layout, normalized)
+		if err == nil {
+			return time.Date(parsed.Year(), parsed.Month(), parsed.Day(), 9, 0, 0, 0, time.UTC), nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("parse fixture date %q: unsupported format", value)
 }

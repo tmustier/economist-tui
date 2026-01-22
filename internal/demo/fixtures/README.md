@@ -19,6 +19,6 @@ Additional fixtures include later leader excerpts provided for demo mode:
 - `riding-on-the-sputnik.txt` — **The Economist, Nov 9th 1957**
 - `young-mans-america.txt` — **The Economist, Nov 12th 1960**
 
-Fixture metadata (titles, dates, ordering) lives in `index.json`.
+Fixture metadata (titles, dates, ordering) lives in `index.json`. Dates accept `YYYY-MM-DD` or human-readable formats like `Nov 12th 1960`.
 
 They are included locally so demo mode works offline for all users. The Online Books Page notes that no issue or contribution copyright renewals were found for this serial; please verify suitability for your jurisdiction if reusing elsewhere, especially for the later excerpts.
