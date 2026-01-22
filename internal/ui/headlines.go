@@ -1,9 +1,14 @@
 package ui
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muesli/reflow/wordwrap"
+)
 
 const (
-	DefaultDateWidth = 14
+	DefaultDateWidth = 13
 	MinTitleWidth    = 30
 )
 
@@ -14,11 +19,17 @@ type HeadlineLayout struct {
 	DateWidth   int
 }
 
-func NewHeadlineLayout(width, prefixWidth int) HeadlineLayout {
-	dateWidth := DefaultDateWidth
+func NewHeadlineLayout(width, prefixWidth, dateWidth int) HeadlineLayout {
+	if dateWidth <= 0 {
+		dateWidth = DefaultDateWidth
+	}
 	titleWidth := width - prefixWidth - dateWidth
-	if titleWidth < MinTitleWidth {
+	minWidth := prefixWidth + dateWidth + MinTitleWidth
+	if titleWidth < MinTitleWidth && width >= minWidth {
 		titleWidth = MinTitleWidth
+	}
+	if titleWidth < 1 {
+		titleWidth = 1
 	}
 
 	return HeadlineLayout{
@@ -32,6 +43,17 @@ func NewHeadlineLayout(width, prefixWidth int) HeadlineLayout {
 func (l HeadlineLayout) PadTitle(title string) string {
 	truncated := Truncate(title, l.TitleWidth)
 	return fmt.Sprintf("%-*s", l.TitleWidth, truncated)
+}
+
+func WrapLines(text string, width int) []string {
+	if text == "" {
+		return nil
+	}
+	if width <= 0 {
+		return []string{text}
+	}
+	wrapped := wordwrap.String(text, width)
+	return strings.Split(wrapped, "\n")
 }
 
 func Truncate(text string, width int) string {
