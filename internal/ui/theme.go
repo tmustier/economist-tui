@@ -1,6 +1,10 @@
 package ui
 
 import (
+	"os"
+	"strings"
+	"sync"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 )
@@ -82,7 +86,31 @@ var DarkTheme = Theme{
 	Error:      lipgloss.Color("#E2365B"), // Tokyo55
 }
 
+var (
+	currentTheme Theme
+	themeOnce    sync.Once
+)
+
+func InitTheme() {
+	_ = CurrentTheme()
+}
+
 func CurrentTheme() Theme {
+	themeOnce.Do(func() {
+		currentTheme = detectTheme()
+	})
+	return currentTheme
+}
+
+func detectTheme() Theme {
+	override := strings.ToLower(strings.TrimSpace(os.Getenv("ECONOMIST_THEME")))
+	switch override {
+	case "dark":
+		return DarkTheme
+	case "light":
+		return DefaultTheme
+	}
+
 	if termenv.HasDarkBackground() {
 		return DarkTheme
 	}

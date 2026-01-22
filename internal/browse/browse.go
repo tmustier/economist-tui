@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/tmustier/economist-cli/internal/rss"
+	"github.com/tmustier/economist-cli/internal/ui"
 )
 
 type Options struct {
@@ -28,6 +29,7 @@ func Run(section string, opts Options) error {
 		sectionTitle = section
 	}
 
+	ui.InitTheme()
 	m := NewModel(items, sectionTitle, opts)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	_, err = p.Run()
