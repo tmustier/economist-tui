@@ -42,7 +42,6 @@ type Model struct {
 
 	mode         viewMode
 	loading      bool
-	loadingItem  *rss.Item
 	pendingURL   string
 	article      *article.Article
 	articleBase  string
