@@ -9,6 +9,69 @@
     "source": "https://archive.org/details/economist23londuoft"
   },
   {
+    "slug": "panic-new-york",
+    "title": "The Panic in New York",
+    "subtitle": "Wall Street reels after the Knickerbocker run",
+    "section": "finance-and-economics",
+    "file": "panic-new-york.txt",
+    "date": "1907-10-26",
+    "source": "https://archive.org/details/sim_economist_1907-10-26_65_3348"
+  },
+  {
+    "slug": "bank-reform-us",
+    "title": "Bank Reform in America",
+    "subtitle": "Federal reserve banks take shape",
+    "section": "finance-and-economics",
+    "file": "bank-reform-us.txt",
+    "date": "1913-12-27",
+    "source": "https://archive.org/details/sim_economist_1913-12-27_77_3670"
+  },
+  {
+    "slug": "sarajevo-murders",
+    "title": "The Sarajevo Murders",
+    "subtitle": "Vienna denounces Servian agitation",
+    "section": "europe",
+    "file": "sarajevo-murders.txt",
+    "date": "1914-07-18",
+    "source": "https://archive.org/details/sim_economist_1914-07-18_79_3699"
+  },
+  {
+    "slug": "war-in-europe",
+    "title": "The War",
+    "subtitle": "Europe plunges into conflict",
+    "section": "europe",
+    "file": "war-in-europe.txt",
+    "date": "1914-08-08",
+    "source": "https://archive.org/details/sim_economist_1914-08-08_79_3702"
+  },
+  {
+    "slug": "russian-revolution-finance",
+    "title": "The Russian Revolution",
+    "subtitle": "The Duma asserts authority",
+    "section": "briefing",
+    "file": "russian-revolution-finance.txt",
+    "date": "1917-03-17",
+    "source": "https://archive.org/details/sim_economist_1917-03-17_84_3838"
+  },
+  {
+    "slug": "wall-street-tornado",
+    "title": "The Wall Street Tornado",
+    "subtitle": "A financial storm sweeps into Europe",
+    "section": "finance-and-economics",
+    "file": "wall-street-tornado.txt",
+    "date": "1929-11-09",
+    "source": "https://archive.org/details/sim_economist_1929-11-09_109_4498"
+  },
+  {
+    "slug": "hitler-in-saddle",
+    "title": "Hitler in the Saddle",
+    "subtitle": "Berlin greets a new chancellor",
+    "section": "europe",
+    "file": "hitler-in-saddle.txt",
+    "date": "1933-02-04",
+    "source": "https://archive.org/details/sim_economist_1933-02-04_116_4667"
+  },
+  {
     "slug": "fair-exchange",
     "title": "Fair Exchange",
     "subtitle": "Destroyers-for-bases",
@@ -36,6 +99,15 @@
     "source": "https://archive.org/details/sim_economist_1944-06-10"
   },
   {
+    "slug": "bretton-woods-conference",
+    "title": "Bretton Woods Opens",
+    "subtitle": "A new monetary order debated",
+    "section": "finance-and-economics",
+    "file": "bretton-woods-conference.txt",
+    "date": "1944-07-01",
+    "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
+  },
+  {
     "slug": "atom-bomb",
     "title": "The atom bomb",
     "subtitle": "Scientific triumph, horror of war",
@@ -43,6 +115,24 @@
     "file": "atom-bomb.txt",
     "date": "1945-08-11",
     "source": "https://archive.org/details/sim_economist_1945-08-11"
+  },
+  {
+    "slug": "marshall-plan-crisis",
+    "title": "Crisis of Leadership",
+    "subtitle": "Europe waits on the Marshall Plan",
+    "section": "briefing",
+    "file": "marshall-plan-crisis.txt",
+    "date": "1947-10-11",
+    "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
+  },
+  {
+    "slug": "north-atlantic-pact",
+    "title": "The North Atlantic Pact",
+    "subtitle": "A new alliance takes shape",
+    "section": "europe",
+    "file": "north-atlantic-pact.txt",
+    "date": "1949-03-26",
+    "source": "https://archive.org/details/sim_economist_1949-03-26_156_5509"
   },
   {
     "slug": "policy-for-korea",
