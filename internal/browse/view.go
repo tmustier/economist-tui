@@ -61,7 +61,7 @@ func (m Model) browseView() (string, string) {
 	if len(items) == 0 {
 		b.WriteString("\n" + styles.Dim.Render("  No matching articles") + "\n")
 	} else {
-		layout := m.browseLayout(len(items))
+		layout = m.browseLayout(len(items))
 		maxVisible = layout.maxVisible
 		if maxVisible > len(items) {
 			maxVisible = len(items)
@@ -83,7 +83,7 @@ func (m Model) browseView() (string, string) {
 			end = len(items)
 		}
 
-		numWidth := len(fmt.Sprintf("%d", len(m.allItems)))
+		numWidth := ui.Max(2, len(fmt.Sprintf("%d", len(m.allItems))))
 		prefixWidth := len(fmt.Sprintf("%*d. ", numWidth, len(m.allItems)))
 		dateLayout := ui.ResolveDateLayout(contentWidth, prefixWidth)
 
