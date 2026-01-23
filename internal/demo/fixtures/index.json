@@ -126,6 +126,15 @@
     "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
   },
   {
+    "slug": "berlin-blockade",
+    "title": "Breathing Space in Germany?",
+    "subtitle": "Negotiations over Berlin's blockade",
+    "section": "europe",
+    "file": "berlin-blockade.txt",
+    "date": "1948-09-04",
+    "source": "https://archive.org/details/sim_economist_1948-09-04_155_5480"
+  },
+  {
     "slug": "north-atlantic-pact",
     "title": "The North Atlantic Pact",
     "subtitle": "A new alliance takes shape",
@@ -216,6 +225,15 @@
     "source": "https://archive.org/details/sim_economist_1956-02-04"
   },
   {
+    "slug": "nasser-bandoeng",
+    "title": "Nasser Imports Bandoengism",
+    "subtitle": "Arab policy turns non-aligned",
+    "section": "middle-east-and-africa",
+    "file": "nasser-bandoeng.txt",
+    "date": "1956-03-24",
+    "source": "https://archive.org/details/sim_economist_1956-03-24_178"
+  },
+  {
     "slug": "ends-and-means-at-suez",
     "title": "Ends and Means at Suez",
     "subtitle": "Bargaining and bayonets",
@@ -261,6 +279,51 @@
     "source": "https://archive.org/details/sim_economist_1957-11-09"
   },
   {
+    "slug": "generals-hour",
+    "title": "The General’s Hour",
+    "subtitle": "De Gaulle takes the republic",
+    "section": "europe",
+    "file": "generals-hour.txt",
+    "date": "1958-06-07",
+    "source": "https://archive.org/details/sim_economist_1958-06-07_187_5989"
+  },
+  {
+    "slug": "batista-departs",
+    "title": "A Dictator Departs",
+    "subtitle": "Castro's forces close in",
+    "section": "the-americas",
+    "file": "batista-departs.txt",
+    "date": "1959-01-03",
+    "source": "https://archive.org/details/sim_economist_1959-01-03_190_6019"
+  },
+  {
+    "slug": "lost-weekend-u2",
+    "title": "The Lost Weekend",
+    "subtitle": "Powers and the U-2 crisis",
+    "section": "briefing",
+    "file": "lost-weekend-u2.txt",
+    "date": "1960-05-21",
+    "source": "https://archive.org/details/sim_economist_1960-05-21_195_6091"
+  },
+  {
+    "slug": "congo-express",
+    "title": "Congo Express",
+    "subtitle": "Lumumba braces for independence",
+    "section": "middle-east-and-africa",
+    "file": "congo-express.txt",
+    "date": "1960-06-25",
+    "source": "https://archive.org/details/sim_economist_1960-06-25_195_6096"
+  },
+  {
+    "slug": "algerian-armistice",
+    "title": "Algerian Armistice?",
+    "subtitle": "De Gaulle risks talks with rebels",
+    "section": "middle-east-and-africa",
+    "file": "algerian-armistice.txt",
+    "date": "1960-06-25",
+    "source": "https://archive.org/details/sim_economist_1960-06-25_195_6096"
+  },
+  {
     "slug": "young-mans-america",
     "title": "Young Man's America?",
     "subtitle": "Narrow victory for Kennedy",
@@ -268,5 +331,482 @@
     "file": "young-mans-america.txt",
     "date": "1960-11-12",
     "source": "https://archive.org/details/sim_economist_1960-11-12"
+  },
+  {
+    "slug": "cuba-mid-revolution",
+    "title": "Cuba in Mid-Revolution",
+    "subtitle": "Agrarian zeal, Havana unease",
+    "section": "the-americas",
+    "file": "cuba-mid-revolution.txt",
+    "date": "1961-01-07",
+    "source": "https://archive.org/details/sim_economist_1961-01-07_198_6124"
+  },
+  {
+    "slug": "jungle-of-laos",
+    "title": "The Jungle of Laos",
+    "subtitle": "Neutralism under pressure",
+    "section": "asia",
+    "file": "jungle-of-laos.txt",
+    "date": "1961-01-07",
+    "source": "https://archive.org/details/sim_economist_1961-01-07_198_6124"
+  },
+  {
+    "slug": "old-dominion",
+    "title": "Challenge in the Old Dominion",
+    "subtitle": "Virginia’s desegregation standoff",
+    "section": "united-states",
+    "file": "old-dominion.txt",
+    "date": "1961-01-28",
+    "source": "https://archive.org/details/sim_economist_1961-01-28_198_6127"
+  },
+  {
+    "slug": "man-into-space",
+    "title": "Man into Space",
+    "subtitle": "Gagarin orbits the earth",
+    "section": "science-and-technology",
+    "file": "man-into-space.txt",
+    "date": "1961-04-15",
+    "source": "https://archive.org/details/sim_economist_1961-04-15_199_6138"
+  },
+  {
+    "slug": "cuban-invasion",
+    "title": "The Cuban Invasion",
+    "subtitle": "Bay of Pigs misfire",
+    "section": "the-americas",
+    "file": "cuban-invasion.txt",
+    "date": "1961-04-29",
+    "source": "https://archive.org/details/sim_economist_1961-04-29_199_6140"
+  },
+  {
+    "slug": "australia-infelix",
+    "title": "Australia Infelix",
+    "subtitle": "Canberra balks at the common market",
+    "section": "britain",
+    "file": "australia-infelix.txt",
+    "date": "1961-07-15",
+    "source": "https://archive.org/details/sim_economist_1961-07-15_200_6151"
+  },
+  {
+    "slug": "gulf-sheikhdoms",
+    "title": "The Gulf Sheikhdoms",
+    "subtitle": "Kuwait shakes the protectorates",
+    "section": "middle-east-and-africa",
+    "file": "gulf-sheikhdoms.txt",
+    "date": "1961-07-15",
+    "source": "https://archive.org/details/sim_economist_1961-07-15_200_6151"
+  },
+  {
+    "slug": "silhouettes-by-twilight",
+    "title": "Silhouettes by Twilight",
+    "subtitle": "Laos talks in shadow-boxing",
+    "section": "asia",
+    "file": "silhouettes-by-twilight.txt",
+    "date": "1961-07-15",
+    "source": "https://archive.org/details/sim_economist_1961-07-15_200_6151"
+  },
+  {
+    "slug": "sir-edgars-referendum",
+    "title": "Sir Edgar’s Referendum",
+    "subtitle": "Southern Rhodesia’s acrimonious vote",
+    "section": "middle-east-and-africa",
+    "file": "sir-edgars-referendum.txt",
+    "date": "1961-07-29",
+    "source": "https://archive.org/details/sim_economist_1961-07-29_200_6153"
+  },
+  {
+    "slug": "two-moroccan-worlds",
+    "title": "Two Moroccan Worlds",
+    "subtitle": "America quits its bases",
+    "section": "middle-east-and-africa",
+    "file": "two-moroccan-worlds.txt",
+    "date": "1961-07-29",
+    "source": "https://archive.org/details/sim_economist_1961-07-29_200_6153"
+  },
+  {
+    "slug": "wall-street-rally",
+    "title": "Wall Street Rally",
+    "subtitle": "Kennedy’s Berlin speech lifts the market",
+    "section": "finance-and-economics",
+    "file": "wall-street-rally.txt",
+    "date": "1961-08-05",
+    "source": "https://archive.org/details/sim_economist_1961-08-05_200_6154"
+  },
+  {
+    "slug": "humpty-congo",
+    "title": "Humpty Congo",
+    "subtitle": "UN hopes for a new premier",
+    "section": "middle-east-and-africa",
+    "file": "humpty-congo.txt",
+    "date": "1961-08-12",
+    "source": "https://archive.org/details/sim_economist_1961-08-12_200_6155"
+  },
+  {
+    "slug": "berlin-divided",
+    "title": "Berlin Divided",
+    "subtitle": "The wall closes the escape hatch",
+    "section": "europe",
+    "file": "berlin-divided.txt",
+    "date": "1961-08-19",
+    "source": "https://archive.org/details/sim_economist_1961-08-19_200_6156"
+  },
+  {
+    "slug": "planning-by-whom",
+    "title": "Planning by Whom?",
+    "subtitle": "Technocrats vs the committee men",
+    "section": "britain",
+    "file": "planning-by-whom.txt",
+    "date": "1961-08-26",
+    "source": "https://archive.org/details/sim_economist_1961-08-26_200_6157"
+  },
+  {
+    "slug": "aviations-missing-managers",
+    "title": "Aviation’s Missing Managers",
+    "subtitle": "Farnborough’s troubled industry",
+    "section": "business",
+    "file": "aviations-missing-managers.txt",
+    "date": "1961-09-02",
+    "source": "https://archive.org/details/sim_economist_1961-09-02_200_6158"
+  },
+  {
+    "slug": "test-of-self-control",
+    "title": "Test of Self Control",
+    "subtitle": "Kennedy resumes nuclear testing",
+    "section": "briefing",
+    "file": "test-of-self-control.txt",
+    "date": "1961-09-09",
+    "source": "https://archive.org/details/sim_economist_1961-09-09_200_6159"
+  },
+  {
+    "slug": "new-life-civil-rights",
+    "title": "New Life for Civil Rights",
+    "subtitle": "Commission wins a reprieve",
+    "section": "united-states",
+    "file": "new-life-civil-rights.txt",
+    "date": "1961-09-16",
+    "source": "https://archive.org/details/sim_economist_1961-09-16_200_6160"
+  },
+  {
+    "slug": "textbook-marriages",
+    "title": "Textbook Marriages",
+    "subtitle": "Publishers chase scale",
+    "section": "business",
+    "file": "textbook-marriages.txt",
+    "date": "1961-09-16",
+    "source": "https://archive.org/details/sim_economist_1961-09-16_200_6160"
+  },
+  {
+    "slug": "is-china-major",
+    "title": "Is China Major?",
+    "subtitle": "UN seat fight looms",
+    "section": "china",
+    "file": "is-china-major.txt",
+    "date": "1961-09-23",
+    "source": "https://archive.org/details/sim_economist_1961-09-23_200_6161"
+  },
+  {
+    "slug": "auto-inflation",
+    "title": "Auto Inflation",
+    "subtitle": "Detroit sets the wage pattern",
+    "section": "united-states",
+    "file": "auto-inflation.txt",
+    "date": "1961-09-23",
+    "source": "https://archive.org/details/sim_economist_1961-09-23_200_6161"
+  },
+  {
+    "slug": "all-eyes-on-carla",
+    "title": "All Eyes on Carla",
+    "subtitle": "America’s mass evacuation",
+    "section": "the-americas",
+    "file": "all-eyes-on-carla.txt",
+    "date": "1961-09-23",
+    "source": "https://archive.org/details/sim_economist_1961-09-23_200_6161"
+  },
+  {
+    "slug": "ships-in-conference",
+    "title": "Ships in Conference",
+    "subtitle": "Shipping bill rattles allies",
+    "section": "business",
+    "file": "ships-in-conference.txt",
+    "date": "1961-09-30",
+    "source": "https://archive.org/details/sim_economist_1961-09-30_200_6162"
+  },
+  {
+    "slug": "true-bizerta",
+    "title": "The True Bizerta",
+    "subtitle": "Tunisia’s fraught base",
+    "section": "middle-east-and-africa",
+    "file": "true-bizerta.txt",
+    "date": "1961-10-07",
+    "source": "https://archive.org/details/sim_economist_1961-10-07_201_6163"
+  },
+  {
+    "slug": "good-start-common-market",
+    "title": "A Good Start",
+    "subtitle": "Heath sells the common market",
+    "section": "europe",
+    "file": "good-start-common-market.txt",
+    "date": "1961-10-14",
+    "source": "https://archive.org/details/sim_economist_1961-10-14_201_6164"
+  },
+  {
+    "slug": "mysteries-of-katanga",
+    "title": "Mysteries of Katanga",
+    "subtitle": "Tshombe’s broken pledges",
+    "section": "middle-east-and-africa",
+    "file": "mysteries-of-katanga.txt",
+    "date": "1961-10-21",
+    "source": "https://archive.org/details/sim_economist_1961-10-21_201_6165"
+  },
+  {
+    "slug": "haven-of-peace",
+    "title": "Haven of Peace?",
+    "subtitle": "Dar-es-Salaam’s nationalist hub",
+    "section": "middle-east-and-africa",
+    "file": "haven-of-peace.txt",
+    "date": "1961-10-21",
+    "source": "https://archive.org/details/sim_economist_1961-10-21_201_6165"
+  },
+  {
+    "slug": "pinprick",
+    "title": "Pinprick",
+    "subtitle": "Copper needles in orbit",
+    "section": "science-and-technology",
+    "file": "pinprick.txt",
+    "date": "1961-10-28",
+    "source": "https://archive.org/details/sim_economist_1961-10-28_201_6166"
+  },
+  {
+    "slug": "kennedy-the-cautious",
+    "title": "Kennedy the Cautious",
+    "subtitle": "A year of diffidence",
+    "section": "united-states",
+    "file": "kennedy-the-cautious.txt",
+    "date": "1961-11-11",
+    "source": "https://archive.org/details/sim_economist_1961-11-11_201_6168"
+  },
+  {
+    "slug": "parking-restricted",
+    "title": "Parking Restricted",
+    "subtitle": "Park loosens his rule",
+    "section": "asia",
+    "file": "parking-restricted.txt",
+    "date": "1961-11-18",
+    "source": "https://archive.org/details/sim_economist_1961-11-18_201_6169"
+  },
+  {
+    "slug": "where-do-we-go-from-here",
+    "title": "Where Do We Go From Here?",
+    "subtitle": "Computers chase new markets",
+    "section": "science-and-technology",
+    "file": "where-do-we-go-from-here.txt",
+    "date": "1961-11-18",
+    "source": "https://archive.org/details/sim_economist_1961-11-18_201_6169"
+  },
+  {
+    "slug": "congo-confusion",
+    "title": "Congo Confusion",
+    "subtitle": "Katanga drags on",
+    "section": "middle-east-and-africa",
+    "file": "congo-confusion.txt",
+    "date": "1961-11-18",
+    "source": "https://archive.org/details/sim_economist_1961-11-18_201_6169"
+  },
+  {
+    "slug": "most-acute-case",
+    "title": "The Most Acute Case",
+    "subtitle": "Scotland’s economic report",
+    "section": "britain",
+    "file": "most-acute-case.txt",
+    "date": "1961-11-25",
+    "source": "https://archive.org/details/sim_economist_1961-11-25_201_6170"
+  },
+  {
+    "slug": "fit-to-survive",
+    "title": "Fit to Survive",
+    "subtitle": "Britain’s economic test",
+    "section": "britain",
+    "file": "fit-to-survive.txt",
+    "date": "1961-12-02",
+    "source": "https://archive.org/details/sim_economist_1961-12-02_201_6171"
+  },
+  {
+    "slug": "mr-exports",
+    "title": "Mr Exports",
+    "subtitle": "Kennedy’s export frontier",
+    "section": "united-states",
+    "file": "mr-exports.txt",
+    "date": "1961-12-09",
+    "source": "https://archive.org/details/sim_economist_1961-12-09_201_6172"
+  },
+  {
+    "slug": "too-many-hamlets",
+    "title": "Too Many Hamlets",
+    "subtitle": "Berlin over Paris",
+    "section": "europe",
+    "file": "too-many-hamlets.txt",
+    "date": "1961-12-16",
+    "source": "https://archive.org/details/sim_economist_1961-12-16_201_6173"
+  },
+  {
+    "slug": "threat-to-diem",
+    "title": "Threat to Diem",
+    "subtitle": "Guerrillas spread",
+    "section": "asia",
+    "file": "threat-to-diem.txt",
+    "date": "1961-12-16",
+    "source": "https://archive.org/details/sim_economist_1961-12-16_201_6173"
+  },
+  {
+    "slug": "commonwealth-approaches",
+    "title": "Commonwealth Approaches",
+    "subtitle": "Heath and the Six",
+    "section": "europe",
+    "file": "commonwealth-approaches.txt",
+    "date": "1961-12-16",
+    "source": "https://archive.org/details/sim_economist_1961-12-16_201_6173"
+  },
+  {
+    "slug": "congo-complexities",
+    "title": "Congo Complexities",
+    "subtitle": "Report from an uncountry",
+    "section": "middle-east-and-africa",
+    "file": "congo-complexities.txt",
+    "date": "1961-12-16",
+    "source": "https://archive.org/details/sim_economist_1961-12-16_201_6173"
+  },
+  {
+    "slug": "fallen-idol",
+    "title": "Fallen Idol",
+    "subtitle": "Goa taken by force",
+    "section": "asia",
+    "file": "fallen-idol.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "are-you-giving-cigarettes",
+    "title": "Are You Giving Cigarettes?",
+    "subtitle": "Lung cancer warnings",
+    "section": "science-and-technology",
+    "file": "are-you-giving-cigarettes.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "china-un-seat",
+    "title": "China and UN",
+    "subtitle": "Vote on the seat",
+    "section": "china",
+    "file": "china-un-seat.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "can-parliament-prejudice",
+    "title": "Can Parliament Prejudice?",
+    "subtitle": "Sub judice rule",
+    "section": "britain",
+    "file": "can-parliament-prejudice.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "against-misleading",
+    "title": "Against Misleading?",
+    "subtitle": "Advertising inquiry",
+    "section": "business",
+    "file": "against-misleading.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "sofia-in-line",
+    "title": "Sofia in Line",
+    "subtitle": "Chervenkov’s fall",
+    "section": "europe",
+    "file": "sofia-in-line.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "no-peace-united-nations",
+    "title": "No Peace for the United Nations",
+    "subtitle": "Katanga and Goa backlash",
+    "section": "briefing",
+    "file": "no-peace-united-nations.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "for-whom-the-bomb-tolls",
+    "title": "For Whom the Bomb Tolls",
+    "subtitle": "Woes of affluence",
+    "section": "briefing",
+    "file": "for-whom-the-bomb-tolls.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "congo-and-its-needs",
+    "title": "The Congo and Its Needs",
+    "subtitle": "Katanga’s fiscal hole",
+    "section": "middle-east-and-africa",
+    "file": "congo-and-its-needs.txt",
+    "date": "1961-12-23",
+    "source": "https://archive.org/details/sim_economist_1961-12-23_201_6174"
+  },
+  {
+    "slug": "dearer-by-air",
+    "title": "Dearer by Air?",
+    "subtitle": "Airlines seek higher fares",
+    "section": "business",
+    "file": "dearer-by-air.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
+  },
+  {
+    "slug": "good-bye-to-blow-by",
+    "title": "Good-bye to Blow-by",
+    "subtitle": "Crankcase fumes controlled",
+    "section": "science-and-technology",
+    "file": "good-bye-to-blow-by.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
+  },
+  {
+    "slug": "china-coast-coexistence",
+    "title": "Co-existence on the China Coast",
+    "subtitle": "Macao’s uneasy calm",
+    "section": "china",
+    "file": "china-coast-coexistence.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
+  },
+  {
+    "slug": "for-whom-the-clock-ticks",
+    "title": "For Whom the Clock Ticks",
+    "subtitle": "Swiss watch industry",
+    "section": "business",
+    "file": "for-whom-the-clock-ticks.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
+  },
+  {
+    "slug": "ill-starred-ceylon",
+    "title": "Ill-Starred Ceylon",
+    "subtitle": "Emergency rule and unrest",
+    "section": "asia",
+    "file": "ill-starred-ceylon.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
+  },
+  {
+    "slug": "france-after-the-pause",
+    "title": "France After the Pause",
+    "subtitle": "Wages and planning",
+    "section": "europe",
+    "file": "france-after-the-pause.txt",
+    "date": "1961-12-30",
+    "source": "https://archive.org/details/sim_economist_1961-12-30_201_6175"
   }
 ]

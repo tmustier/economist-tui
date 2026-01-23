@@ -1,0 +1,5 @@
+Computers have become the accepted means of handling large numbers of figures, whether they be wages, pensions, stores, bank accounts, orders or scientific equations. This market alone will not, however, keep alive all the computer manufacturers operating in Britain. To sustain production at its present level they must now convince potential customers that computers are capable of handling data that is not expressed arithmetically and sometimes looks as if it never could be.
+
+The Institution of Production Engineers, in a survey of applications for computers in production control, laid down the following criteria: “if the problems are complex, the volume of data is high or the processing must be done within a tight time schedule.” With a slight stretch of the imagination these standards could be made to fit a range of human activities from oil refineries to medical diagnosis.
+
+Some of the best brains in the computer business on both sides of the Atlantic are engaged in trying to extend the market into these new fields. The Department of Scientific and Industrial Research thinks that some of the obstacles may lie with the computer companies themselves. ■
