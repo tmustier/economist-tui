@@ -54,6 +54,60 @@
     "source": "https://archive.org/details/sim_economist_1917-03-17_84_3838"
   },
   {
+    "slug": "economic-peace",
+    "title": "Economic Peace",
+    "subtitle": "No boycott for Germany",
+    "section": "finance-and-economics",
+    "file": "economic-peace.txt",
+    "date": "1917-12-08",
+    "source": "https://archive.org/details/sim_economist_1917-12-08_85_3876"
+  },
+  {
+    "slug": "armistice-exchanges",
+    "title": "After the Armistice",
+    "subtitle": "Foreign exchanges drift",
+    "section": "finance-and-economics",
+    "file": "armistice-exchanges.txt",
+    "date": "1918-11-23",
+    "source": "https://archive.org/details/sim_economist_1918-11-23_87_3926"
+  },
+  {
+    "slug": "regrouping-europe",
+    "title": "The Re-grouping of Europe",
+    "subtitle": "Treaty signed at Versailles",
+    "section": "europe",
+    "file": "regrouping-europe.txt",
+    "date": "1919-07-05",
+    "source": "https://archive.org/details/sim_economist_1919-07-05_89_3958"
+  },
+  {
+    "slug": "coal-industry-precipice",
+    "title": "Coal Industry Near the Precipice",
+    "subtitle": "Miners reject wage cuts",
+    "section": "britain",
+    "file": "coal-industry-precipice.txt",
+    "date": "1926-04-10",
+    "source": "https://archive.org/details/sim_economist_1926-04-10_102_4311"
+  },
+  {
+    "slug": "britain-under-general-strike",
+    "title": "Britain Under a General Strike",
+    "subtitle": "An emergency number",
+    "section": "britain",
+    "file": "britain-under-general-strike.txt",
+    "date": "1926-05-08",
+    "source": "https://archive.org/details/sim_economist_1926-05-08_102_4315"
+  },
+  {
+    "slug": "restoring-peace",
+    "title": "Restoring Peace",
+    "subtitle": "The strike ends",
+    "section": "britain",
+    "file": "restoring-peace.txt",
+    "date": "1926-05-15",
+    "source": "https://archive.org/details/sim_economist_1926-05-15_102_4316"
+  },
+  {
     "slug": "wall-street-tornado",
     "title": "The Wall Street Tornado",
     "subtitle": "A financial storm sweeps into Europe",
@@ -63,6 +117,15 @@
     "source": "https://archive.org/details/sim_economist_1929-11-09_109_4498"
   },
   {
+    "slug": "after-gold-standard",
+    "title": "After the Gold Standard",
+    "subtitle": "Sterling without gold",
+    "section": "finance-and-economics",
+    "file": "after-gold-standard.txt",
+    "date": "1931-09-26",
+    "source": "https://archive.org/details/sim_economist_1931-09-26_113_4596"
+  },
+  {
     "slug": "hitler-in-saddle",
     "title": "Hitler in the Saddle",
     "subtitle": "Berlin greets a new chancellor",
@@ -70,6 +133,33 @@
     "file": "hitler-in-saddle.txt",
     "date": "1933-02-04",
     "source": "https://archive.org/details/sim_economist_1933-02-04_116_4667"
+  },
+  {
+    "slug": "vain-sacrifice",
+    "title": "Vain Sacrifice?",
+    "subtitle": "The crisis in Czechoslovakia",
+    "section": "europe",
+    "file": "vain-sacrifice.txt",
+    "date": "1938-09-24",
+    "source": "https://archive.org/details/sim_economist_1938-09-24_132_4961"
+  },
+  {
+    "slug": "war-in-poland",
+    "title": "The War in Poland",
+    "subtitle": "Hitler’s attack at dawn",
+    "section": "briefing",
+    "file": "war-in-poland.txt",
+    "date": "1939-09-09",
+    "source": "https://archive.org/details/sim_economist_1939-09-09_136_5011"
+  },
+  {
+    "slug": "war-at-sea",
+    "title": "War at Sea",
+    "subtitle": "The Athenia torpedoed",
+    "section": "briefing",
+    "file": "war-at-sea.txt",
+    "date": "1939-09-09",
+    "source": "https://archive.org/details/sim_economist_1939-09-09_136_5011"
   },
   {
     "slug": "fair-exchange",
@@ -108,6 +198,42 @@
     "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
   },
   {
+    "slug": "money-conference-opens",
+    "title": "Money Conference Opens",
+    "subtitle": "Bretton Woods delegates",
+    "section": "finance-and-economics",
+    "file": "money-conference-opens.txt",
+    "date": "1944-07-01",
+    "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
+  },
+  {
+    "slug": "european-views-bretton-woods",
+    "title": "European Views",
+    "subtitle": "Bretton Woods quotas",
+    "section": "finance-and-economics",
+    "file": "european-views-bretton-woods.txt",
+    "date": "1944-07-01",
+    "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
+  },
+  {
+    "slug": "reconstruction-loans",
+    "title": "Reconstruction Loans?",
+    "subtitle": "Investment bank debate",
+    "section": "finance-and-economics",
+    "file": "reconstruction-loans.txt",
+    "date": "1944-07-01",
+    "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
+  },
+  {
+    "slug": "natural-and-synthetic-rubber",
+    "title": "Natural and Synthetic Rubber",
+    "subtitle": "There is room for both",
+    "section": "business",
+    "file": "natural-and-synthetic-rubber.txt",
+    "date": "1944-07-01",
+    "source": "https://archive.org/details/sim_economist_1944-07-01_147_5262"
+  },
+  {
     "slug": "atom-bomb",
     "title": "The atom bomb",
     "subtitle": "Scientific triumph, horror of war",
@@ -117,11 +243,83 @@
     "source": "https://archive.org/details/sim_economist_1945-08-11"
   },
   {
+    "slug": "working-our-passage",
+    "title": "Working Our Passage",
+    "subtitle": "Marshall plan in Paris",
+    "section": "europe",
+    "file": "working-our-passage.txt",
+    "date": "1947-07-19",
+    "source": "https://archive.org/details/sim_economist_1947-07-19_153_5421"
+  },
+  {
+    "slug": "transport-bill-now",
+    "title": "The Transport Bill Now",
+    "subtitle": "Lords revise the bill",
+    "section": "business",
+    "file": "transport-bill-now.txt",
+    "date": "1947-07-19",
+    "source": "https://archive.org/details/sim_economist_1947-07-19_153_5421"
+  },
+  {
+    "slug": "after-july-14th",
+    "title": "After July 14th",
+    "subtitle": "Sterling transferability",
+    "section": "finance-and-economics",
+    "file": "after-july-14th.txt",
+    "date": "1947-07-19",
+    "source": "https://archive.org/details/sim_economist_1947-07-19_153_5421"
+  },
+  {
+    "slug": "preparation-marshall-project",
+    "title": "Preparation for the Marshall Project",
+    "subtitle": "American survey",
+    "section": "united-states",
+    "file": "preparation-marshall-project.txt",
+    "date": "1947-07-19",
+    "source": "https://archive.org/details/sim_economist_1947-07-19_153_5421"
+  },
+  {
+    "slug": "is-it-well-with-india",
+    "title": "Is It Well With India?",
+    "subtitle": "Independence and Pakistan",
+    "section": "asia",
+    "file": "is-it-well-with-india.txt",
+    "date": "1947-07-19",
+    "source": "https://archive.org/details/sim_economist_1947-07-19_153_5421"
+  },
+  {
     "slug": "marshall-plan-crisis",
     "title": "Crisis of Leadership",
     "subtitle": "Europe waits on the Marshall Plan",
     "section": "briefing",
     "file": "marshall-plan-crisis.txt",
+    "date": "1947-10-11",
+    "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
+  },
+  {
+    "slug": "europes-dollar-needs",
+    "title": "Europe’s Dollar Needs",
+    "subtitle": "Balance of payments gap",
+    "section": "finance-and-economics",
+    "file": "europes-dollar-needs.txt",
+    "date": "1947-10-11",
+    "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
+  },
+  {
+    "slug": "problems-of-eating",
+    "title": "The Problems of Eating",
+    "subtitle": "Truman’s food squeeze",
+    "section": "united-states",
+    "file": "problems-of-eating.txt",
+    "date": "1947-10-11",
+    "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
+  },
+  {
+    "slug": "food-from-the-empire",
+    "title": "Food from the Empire",
+    "subtitle": "Britain’s overseas supplies",
+    "section": "britain",
+    "file": "food-from-the-empire.txt",
     "date": "1947-10-11",
     "source": "https://archive.org/details/sim_economist_1947-10-11_153_5433"
   },
