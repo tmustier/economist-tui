@@ -594,6 +594,15 @@
     "source": "https://archive.org/details/sim_economist_1952-03-29_162"
   },
   {
+    "slug": "unmilitary",
+    "title": "Unmilitary",
+    "subtitle": "America’s armed forces shift",
+    "section": "united-states",
+    "file": "unmilitary.txt",
+    "date": "1952-03-29",
+    "source": "https://archive.org/details/sim_economist_1952-03-29_162"
+  },
+  {
     "slug": "burnt-fingers",
     "title": "Burnt Fingers on the Public Pulse",
     "subtitle": "Pollster miss, Univac swing",
