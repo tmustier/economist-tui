@@ -189,6 +189,15 @@
     "source": "https://archive.org/details/sim_economist_1940-09-07_139_5063"
   },
   {
+    "slug": "world-war",
+    "title": "World War",
+    "subtitle": "Pearl Harbour widens the conflict",
+    "section": "leaders",
+    "file": "world-war.txt",
+    "date": "1941-12-13",
+    "source": "https://archive.org/details/sim_economist_1941-12-13_141_5129"
+  },
+  {
     "slug": "june-the-sixth",
     "title": "June the Sixth",
     "subtitle": "Landfall at Dunkirk",
