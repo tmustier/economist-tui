@@ -891,6 +891,15 @@
     "source": "https://archive.org/details/sim_economist_1956-02-04"
   },
   {
+    "slug": "printers-pie",
+    "title": "Printers’ Pie",
+    "subtitle": "London’s printing strike",
+    "section": "britain",
+    "file": "printers-pie.txt",
+    "date": "1956-03-24",
+    "source": "https://archive.org/details/sim_economist_1956-03-24_178"
+  },
+  {
     "slug": "nasser-bandoeng",
     "title": "Nasser Imports Bandoengism",
     "subtitle": "Arab policy turns non-aligned",
