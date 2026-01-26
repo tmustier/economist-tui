@@ -11,12 +11,16 @@ import (
 )
 
 var demoCmd = &cobra.Command{
-	Use:   "demo",
+	Use:   "demo [section]",
 	Short: "Browse demo content",
 	Long: `Browse a safe demo feed with placeholder content.
 
-No login is required and all content is locally generated.`,
-	Args: cobra.NoArgs,
+No login is required and all content is locally generated.
+
+Examples:
+  economist demo
+  economist demo the-americas`,
+	Args: cobra.MaximumNArgs(1),
 	RunE: runDemo,
 }
 
@@ -29,7 +33,12 @@ func runDemo(cmd *cobra.Command, args []string) error {
 		return appErrors.NewUserError("demo requires an interactive terminal")
 	}
 
+	section := demo.DefaultSection
+	if len(args) > 0 {
+		section = args[0]
+	}
+
 	source := demo.NewSource()
 	opts := browse.Options{Debug: debugMode, NoColor: noColor, Source: source}
-	return browse.Run(demo.DefaultSection, opts)
+	return browse.Run(section, opts)
 }
