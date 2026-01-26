@@ -1,5 +1,12 @@
 # Release Notes
 
+## v0.4.0
+
+- **Search bar redesign**: vim-style `/` prefix, cursor indicator, Chicago20 background when active, result count display, and red styling for no-match state.
+- **Section navigation dots**: centered footer indicator showing current section position with `⇧⇥/⇥` icons.
+- **Article navigation**: tab/shift-tab now cycles through articles while in reader view.
+- **Footer polish**: all footer lines centered, symbol-based help text (`↵`, `⇧⇥/⇥`), position tracker with arrow indicators `← (1/19) →`.
+
 ## v0.3.9
 
 - **Demo mode**: expand the archival fixture library across early- and mid-century issues for richer browsing.
