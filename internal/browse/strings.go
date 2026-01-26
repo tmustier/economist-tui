@@ -1,11 +1,11 @@
 package browse
 
 const (
-	articleHelpFormat      = "b back • c columns %s • ↑/↓ scroll • pgup/pgdn • q quit"
-	articleLoadingHelp     = "b back • q quit"
+	articleHelpFormat      = "b back • ⇧⇥/⇥ prev/next • c columns %s • ↑/↓ scroll • q quit"
+	articleLoadingHelp     = "b back • ⇧⇥/⇥ prev/next • q quit"
 	browseTitleLines       = 2
 	browseSubtitleLines    = 2
-	browseHeaderLines      = 4
+	browseHeaderLines      = 5
 	browseFooterPadding    = 1
 	browseFooterGapLines   = 0
 	browseMinVisibleLines  = 5

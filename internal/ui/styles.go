@@ -16,6 +16,12 @@ type BrowseStyles struct {
 	Dim      lipgloss.Style
 	Help     lipgloss.Style
 	Search   lipgloss.Style
+
+	// Search bar states
+	SearchIdle    lipgloss.Style // Placeholder "/ type to filter..."
+	SearchActive  lipgloss.Style // Active input with background
+	SearchCount   lipgloss.Style // Result count "3 of 25"
+	SearchNoMatch lipgloss.Style // No results state
 }
 
 type Styles struct {
@@ -111,6 +117,12 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 	help := lipgloss.NewStyle().Foreground(theme.TextFaint)
 	search := lipgloss.NewStyle().Foreground(theme.TextFaint)
 
+	// Search bar styles
+	searchIdle := lipgloss.NewStyle().Foreground(theme.TextFaint).Padding(0, 1)
+	searchActive := lipgloss.NewStyle().Foreground(theme.Text).Background(Chicago20).Padding(0, 1)
+	searchCount := lipgloss.NewStyle().Foreground(theme.TextMuted).Background(Chicago20).Padding(0, 1, 0, 0)
+	searchNoMatch := lipgloss.NewStyle().Foreground(theme.Error).Background(Chicago20).Padding(0, 1)
+
 	if noColor {
 		body = lipgloss.NewStyle()
 		header = lipgloss.NewStyle().Bold(true)
@@ -121,17 +133,25 @@ func NewBrowseStyles(noColor bool) BrowseStyles {
 		dim = lipgloss.NewStyle()
 		help = lipgloss.NewStyle()
 		search = lipgloss.NewStyle()
+		searchIdle = lipgloss.NewStyle()
+		searchActive = lipgloss.NewStyle()
+		searchCount = lipgloss.NewStyle()
+		searchNoMatch = lipgloss.NewStyle()
 	}
 
 	return BrowseStyles{
-		Header:   header,
-		Rule:     rule,
-		Title:    title,
-		Subtitle: subtitle,
-		Selected: selected,
-		Dim:      dim,
-		Help:     help,
-		Search:   search,
+		Header:        header,
+		Rule:          rule,
+		Title:         title,
+		Subtitle:      subtitle,
+		Selected:      selected,
+		Dim:           dim,
+		Help:          help,
+		Search:        search,
+		SearchIdle:    searchIdle,
+		SearchActive:  searchActive,
+		SearchCount:   searchCount,
+		SearchNoMatch: searchNoMatch,
 	}
 }
 

@@ -9,24 +9,19 @@ type helpLineSpec struct {
 var browseHelpLineSpecs = []helpLineSpec{
 	{
 		Options: []string{
-			"↑/↓ navigate • ←/→ page • tab/shift+tab section",
-			"↑/↓ navigate • ←/→ page • tab section",
-			"↑/↓ move • ←/→ page • tab section",
-			"↑/↓ move • ←/→ page • tab",
-			"↑/↓ move • ←/→ page",
-			"↑/↓ move • tab",
+			"↑/↓ navigate • ←/→ page • ⇧⇥/⇥ section",
+			"↑/↓ move • ←/→ page • ⇧⇥/⇥ section",
+			"↑/↓ • ←/→ • ⇧⇥/⇥",
+			"↑/↓ • ⇧⇥/⇥",
 			"↑/↓",
 		},
 	},
 	{
 		Options: []string{
-			"enter read • type to search • esc clear • q quit",
-			"enter read • type search • esc clear • q quit",
-			"enter read • search • esc clear • q quit",
-			"enter read • search • q quit",
-			"enter • search • q quit",
-			"enter • search • q",
-			"enter • q",
+			"↵ read • esc clear • q quit",
+			"↵ read • esc • q quit",
+			"↵ • esc • q",
+			"↵ • q",
 			"q",
 		},
 	},

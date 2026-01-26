@@ -416,6 +416,10 @@ func (m Model) updateArticle(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.loading = false
 		m.loadingItem = nil
 		m.pendingURL = ""
+	case tea.KeyTab:
+		return m.navigateArticle(1)
+	case tea.KeyShiftTab:
+		return m.navigateArticle(-1)
 	case tea.KeyUp:
 		m.scroll--
 	case tea.KeyDown:
@@ -461,6 +465,38 @@ func (m Model) queueSectionChange(delta int) (tea.Model, tea.Cmd) {
 	m.sectionLoading = true
 	m.sectionErr = nil
 	return m, m.fetchSectionCmd(nextSection)
+}
+
+// navigateArticle moves to the next or previous article in the list.
+func (m Model) navigateArticle(delta int) (tea.Model, tea.Cmd) {
+	if len(m.filteredItems) == 0 {
+		return m, nil
+	}
+
+	// Calculate new cursor position with wrapping
+	newCursor := m.cursor + delta
+	if newCursor < 0 {
+		newCursor = len(m.filteredItems) - 1
+	} else if newCursor >= len(m.filteredItems) {
+		newCursor = 0
+	}
+
+	// Update cursor and browse window
+	m.cursor = newCursor
+	m.ensureBrowseWindow()
+
+	// Fetch the new article
+	item := m.filteredItems[m.cursor]
+	m.loading = true
+	m.loadingItem = &item
+	m.pendingURL = item.Link
+	m.articleErr = nil
+	m.article = nil
+	m.articleBase = ""
+	m.articleLines = nil
+	m.scroll = 0
+
+	return m, m.fetchArticleCmd(item.Link)
 }
 
 func (m *Model) refreshArticleLines() {
@@ -555,7 +591,8 @@ func (m Model) browseLayout(itemCount int) browseLayout {
 }
 
 func (m Model) browseLayoutForFooter(helpLineCount int, showPosition bool, itemCount int) browseLayout {
-	spec := browseLayoutSpec(helpLineCount, showPosition)
+	showSectionDots := len(m.sections) > 1
+	spec := browseLayoutSpec(helpLineCount, showPosition, showSectionDots)
 	visibleLines := spec.VisibleLines(m.height)
 	titleLines, subtitleLines := resolveBrowseItemLines(visibleLines)
 	maxVisible := m.maxVisibleItems(itemCount, visibleLines, titleLines, subtitleLines)

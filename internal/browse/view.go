@@ -35,6 +35,7 @@ func (m Model) browseView() (string, string) {
 	b.WriteString(header + "\n")
 	b.WriteString(ui.AccentRule(contentWidth, accentStyles) + "\n")
 
+	// Status line (loading/error)
 	statusLine := ""
 	if m.sectionLoading && m.pendingSection != "" {
 		statusLine = styles.Dim.Render(fmt.Sprintf("loading %s…", m.pendingSection))
@@ -42,17 +43,12 @@ func (m Model) browseView() (string, string) {
 		statusLine = styles.Dim.Render(fmt.Sprintf("error: %v", m.sectionErr))
 	}
 
-	if m.searchQuery != "" {
-		line := styles.Search.Render(fmt.Sprintf("search: %s", m.searchQuery))
-		if statusLine != "" {
-			line = fmt.Sprintf("%s  %s", line, statusLine)
-		}
-		b.WriteString(line + "\n")
-	} else if statusLine != "" {
-		b.WriteString(statusLine + "\n")
-	} else {
-		b.WriteString("\n")
+	// Search bar with states: idle, active, no-match
+	searchLine := m.renderSearchBar(styles, contentWidth)
+	if statusLine != "" {
+		searchLine = fmt.Sprintf("%s  %s", searchLine, statusLine)
 	}
+	b.WriteString(searchLine + "\n\n")
 
 	items := m.filteredItems
 	maxVisible := 0
@@ -129,13 +125,27 @@ func (m Model) browseView() (string, string) {
 	content := b.String()
 	divider := ui.SectionRule(contentWidth, accentStyles)
 	helpLines := browseHelpLines(contentWidth)
-	footerLines := make([]string, 0, len(helpLines)+1)
+	footerLines := make([]string, 0, len(helpLines)+2)
+
+	// Position tracker (above dots)
 	if layout.showPosition && len(items) > 0 {
-		footerLines = append(footerLines, styles.Dim.Render(fmt.Sprintf("(%d/%d)", m.cursor+1, len(items))))
+		footerLines = append(footerLines, styles.Dim.Render(fmt.Sprintf("← (%d/%d) →", m.cursor+1, len(items))))
 	}
+
+	// Section dots navigation
+	if len(m.sections) > 1 {
+		footerLines = append(footerLines, m.renderSectionDots(styles, contentWidth))
+	}
+
 	for _, line := range helpLines {
 		footerLines = append(footerLines, styles.Help.Render(line))
 	}
+
+	// Center all footer lines
+	for i, line := range footerLines {
+		footerLines[i] = ui.CenterText(line, contentWidth)
+	}
+
 	footer := ui.BuildFooter(divider, footerLines...)
 	if indent > 0 {
 		content = ui.IndentBlock(content, indent)
@@ -171,8 +181,8 @@ func (m Model) articleView() (string, string) {
 	var b strings.Builder
 	if m.loading {
 		content := m.loadingSkeletonView()
-		footer := styles.Help.Render(articleLoadingHelp)
-		footer = ui.BuildFooter(divider, footer)
+		centeredHelp := ui.CenterText(styles.Help.Render(articleLoadingHelp), contentWidth)
+		footer := ui.BuildFooter(divider, centeredHelp)
 		if indent > 0 {
 			footer = ui.IndentBlock(footer, indent)
 		}
@@ -182,8 +192,8 @@ func (m Model) articleView() (string, string) {
 	if m.articleErr != nil {
 		b.WriteString(styles.Dim.Render(fmt.Sprintf("%v", m.articleErr)))
 		content := b.String()
-		footer := styles.Help.Render(articleLoadingHelp)
-		footer = ui.BuildFooter(divider, footer)
+		centeredHelp := ui.CenterText(styles.Help.Render(articleLoadingHelp), contentWidth)
+		footer := ui.BuildFooter(divider, centeredHelp)
 		if indent > 0 {
 			content = ui.IndentBlock(content, indent)
 			footer = ui.IndentBlock(footer, indent)
@@ -194,8 +204,8 @@ func (m Model) articleView() (string, string) {
 	if len(m.articleLines) == 0 {
 		b.WriteString("No article loaded.")
 		content := b.String()
-		footer := styles.Help.Render(articleLoadingHelp)
-		footer = ui.BuildFooter(divider, footer)
+		centeredHelp := ui.CenterText(styles.Help.Render(articleLoadingHelp), contentWidth)
+		footer := ui.BuildFooter(divider, centeredHelp)
 		if indent > 0 {
 			content = ui.IndentBlock(content, indent)
 			footer = ui.IndentBlock(footer, indent)
@@ -235,10 +245,14 @@ func (m Model) articleView() (string, string) {
 		divider = ""
 	}
 
-	footer := ui.BuildFooter(divider, hintLine, styles.Help.Render(help))
+	// Center footer lines
+	centeredHint := ui.CenterText(hintLine, contentWidth)
+	centeredHelp := ui.CenterText(styles.Help.Render(help), contentWidth)
+
+	footer := ui.BuildFooter(divider, centeredHint, centeredHelp)
 	if m.opts.Debug {
 		detail := fmt.Sprintf("fetch=%s base=%s reflow=%s", m.fetchDuration, m.baseDuration, m.reflowDuration)
-		footer = strings.TrimRight(footer, "\n") + "\n" + styles.Dim.Render(detail)
+		footer = strings.TrimRight(footer, "\n") + "\n" + ui.CenterText(styles.Dim.Render(detail), contentWidth)
 	}
 
 	if indent > 0 {
@@ -270,4 +284,68 @@ func lastNonBlankLine(lines []string) string {
 		return lines[i]
 	}
 	return ""
+}
+
+// renderSectionDots renders section position dots with tab navigation hints.
+// Format: ⇧⇥  ○ ○ ● ○ ○  ⇥
+func (m Model) renderSectionDots(styles ui.BrowseStyles, width int) string {
+	const (
+		tabIcon      = "⇥"
+		shiftTabIcon = "⇧⇥"
+		dotActive    = "●"
+		dotInactive  = "○"
+		maxDots      = 20 // Collapse to avoid overflow on narrow terminals
+	)
+
+	numSections := len(m.sections)
+	showAllDots := numSections <= maxDots && numSections*2-1+10 <= width // dots + spacing + icons
+
+	var content string
+	if showAllDots {
+		// Build dots: ○ ○ ● ○ ○
+		var dots strings.Builder
+		for i := 0; i < numSections; i++ {
+			if i > 0 {
+				dots.WriteString(" ")
+			}
+			if i == m.sectionIndex {
+				dots.WriteString(dotActive)
+			} else {
+				dots.WriteString(dotInactive)
+			}
+		}
+		content = fmt.Sprintf("%s  %s  %s", shiftTabIcon, dots.String(), tabIcon)
+	} else {
+		// Compact: ⇧⇥  3/12  ⇥
+		content = fmt.Sprintf("%s  %d/%d  %s", shiftTabIcon, m.sectionIndex+1, numSections, tabIcon)
+	}
+
+	return styles.Dim.Render(content)
+}
+
+// renderSearchBar renders the search bar with appropriate state styling.
+// States: idle (placeholder), active (typing), no-match (red)
+func (m Model) renderSearchBar(styles ui.BrowseStyles, width int) string {
+	const cursor = "│"
+	const prefix = "/"
+
+	if m.searchQuery == "" {
+		// Idle state: show placeholder
+		return styles.SearchIdle.Render("/ type to filter...")
+	}
+
+	// Active state with query
+	totalItems := len(m.allItems)
+	matchCount := len(m.filteredItems)
+
+	if matchCount == 0 {
+		// No match state
+		text := fmt.Sprintf("%s %s%s  0 matches", prefix, m.searchQuery, cursor)
+		return styles.SearchNoMatch.Render(text)
+	}
+
+	// Normal active state with results - unified background
+	text := fmt.Sprintf("%s %s%s", prefix, m.searchQuery, cursor)
+	countText := fmt.Sprintf("%d of %d", matchCount, totalItems)
+	return styles.SearchActive.Render(text) + styles.SearchCount.Render(countText)
 }
