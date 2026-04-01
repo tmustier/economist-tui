@@ -21,8 +21,11 @@ import (
 const (
 	minParagraphLen      = 40  // Skip very short paragraphs
 	minContentLen        = 500 // Minimum content to consider article "loaded"
-	articleReadySelector = "article h1, h1.article__headline, [data-test-id='headline'], article"
+	articleReadySelector = "article h1, h1.article__headline, [data-test-id='headline'], [data-testid='Article'], article"
 	articleWaitTimeout   = 8 * time.Second
+	contentWaitTimeout   = 10 * time.Second // Wait for JS to load full article content
+	contentPollInterval  = 250 * time.Millisecond
+	contentMinParagraphs = 3 // Expect at least this many paragraphs in a full article
 )
 
 var blockedURLPatterns = []string{
@@ -109,6 +112,12 @@ func FetchWithCookies(articleURL string, opts FetchOptions, cookies []config.Coo
 	if err != nil {
 		return nil, fmt.Errorf("failed to load page: %w", err)
 	}
+
+	// Wait for the Economist's client-side JS to verify auth and load full
+	// article content. The site initially renders one paragraph behind a
+	// registration wall (<teg-inline-wall>); authenticated users get the
+	// rest injected after a JS auth check completes.
+	waitForContent(ctx, opts.Debug, contentWaitTimeout)
 
 	html, err := captureHTML(ctx, opts.Debug)
 	if err != nil {
@@ -235,8 +244,10 @@ func cleanHeaderText(text string) string {
 func extractContent(doc *goquery.Document) string {
 	var paragraphs []string
 
-	// Primary selectors for article body
-	doc.Find(".article__body-text p, [data-component='article-body'] p").Each(func(i int, s *goquery.Selection) {
+	// Primary selectors for article body (current Economist HTML uses
+	// data-component="paragraph" on <p> elements; legacy layout used
+	// .article__body-text or [data-component='article-body'] containers).
+	doc.Find("p[data-component='paragraph'], .article__body-text p, [data-component='article-body'] p").Each(func(i int, s *goquery.Selection) {
 		if isInsideRelatedSection(s) {
 			return
 		}
@@ -416,6 +427,50 @@ func debugStep(enabled bool, message string) chromedp.ActionFunc {
 		logging.Debugf(enabled, message)
 		return nil
 	})
+}
+
+// waitForContent polls the page until the Economist's JS has loaded the full
+// article body. The site renders one teaser paragraph plus a regwall; once the
+// auth check passes, the wall is removed and the remaining <p> elements are
+// injected. We poll for either:
+//   - multiple paragraphs appearing (content loaded), or
+//   - the regwall element disappearing (auth resolved, even for short articles)
+//
+// On timeout we proceed silently — the caller still gets whatever HTML is present.
+func waitForContent(ctx context.Context, debug bool, timeout time.Duration) {
+	deadline := time.After(timeout)
+	ticker := time.NewTicker(contentPollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-deadline:
+			logging.Debugf(debug, "content wait: timeout after %s", timeout)
+			return
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			var ready bool
+			err := chromedp.Run(ctx, chromedp.Evaluate(
+				`(function() {
+					var ps = document.querySelectorAll('p[data-component="paragraph"]');
+					if (ps.length >= `+fmt.Sprintf("%d", contentMinParagraphs)+`) return true;
+					var wall = document.querySelector('[data-testid="regwall"], #tp-regwall');
+					if (!wall) return true;
+					var style = window.getComputedStyle(wall);
+					if (style.display === 'none' || wall.offsetHeight === 0) return true;
+					return false;
+				})()`, &ready,
+			))
+			if err != nil {
+				continue
+			}
+			if ready {
+				logging.Debugf(debug, "content wait: ready")
+				return
+			}
+		}
+	}
 }
 
 func (a *Article) ToMarkdown() string {

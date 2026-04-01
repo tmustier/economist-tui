@@ -88,25 +88,50 @@ func checkLoginStatus(ctx context.Context) (bool, error) {
 	}
 
 	// Check for auth cookies
+	hasAuth := false
 	for _, c := range cookies {
 		if browser.IsAuthCookie(c.Name) {
-			return saveCookies(cookies)
+			hasAuth = true
+			break
 		}
 	}
 
-	// Check if user navigated away from login page
-	var currentURL string
-	if err := chromedp.Run(ctx, chromedp.Location(&currentURL)); err != nil {
-		return false, err
+	if !hasAuth {
+		// Check if user navigated away from login page
+		var currentURL string
+		if err := chromedp.Run(ctx, chromedp.Location(&currentURL)); err != nil {
+			return false, err
+		}
+
+		isOnLoginPage := strings.Contains(currentURL, "/auth/") || strings.Contains(currentURL, "/login")
+		if len(cookies) > 5 && !isOnLoginPage {
+			fmt.Printf("   Detected navigation to: %s\n", currentURL)
+			hasAuth = true
+		}
 	}
 
-	isOnLoginPage := strings.Contains(currentURL, "/auth/") || strings.Contains(currentURL, "/login")
-	if len(cookies) > 5 && !isOnLoginPage {
-		fmt.Printf("   Detected navigation to: %s\n", currentURL)
+	if !hasAuth {
+		return false, nil
+	}
+
+	// Auth detected — visit a regular article page to trigger the Zephr
+	// paywall system to set its wall_session cookie. Without this, the
+	// paywall session is never established and articles appear cut off.
+	fmt.Println("   Login detected, establishing subscription session...")
+	_ = chromedp.Run(ctx,
+		chromedp.Navigate("https://www.economist.com/leaders"),
+		chromedp.WaitReady("body", chromedp.ByQuery),
+		chromedp.Sleep(3*time.Second),
+	)
+
+	// Re-extract cookies after the Zephr session has been established
+	cookies, err = browser.ExtractCookies(ctx)
+	if err != nil {
+		// Fall back to the cookies we already had
 		return saveCookies(cookies)
 	}
 
-	return false, nil
+	return saveCookies(cookies)
 }
 
 func saveCookies(cookies []config.Cookie) (bool, error) {

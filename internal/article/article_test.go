@@ -56,6 +56,30 @@ func TestParseArticleExtractsFields(t *testing.T) {
 	}
 }
 
+func TestParseArticleModernSelectors(t *testing.T) {
+	html := loadFixture(t, "modern.html")
+	art, err := parseArticle(html, "https://example.com/modern")
+	if err != nil {
+		t.Fatalf("parse article: %v", err)
+	}
+
+	if art.Title != "A modern headline" {
+		t.Fatalf("expected title, got %q", art.Title)
+	}
+	if !strings.Contains(art.Content, "First paragraph") {
+		t.Fatalf("expected first paragraph, got %q", art.Content)
+	}
+	if !strings.Contains(art.Content, "Second paragraph") {
+		t.Fatalf("expected second paragraph, got %q", art.Content)
+	}
+	if !strings.Contains(art.Content, "Third paragraph") {
+		t.Fatalf("expected third paragraph, got %q", art.Content)
+	}
+	if !strings.HasSuffix(strings.TrimSpace(art.Content), "■") {
+		t.Fatalf("expected trailing marker, got %q", art.Content)
+	}
+}
+
 func TestParseArticlePaywall(t *testing.T) {
 	html := loadFixture(t, "paywall.html")
 	_, err := parseArticle(html, "https://example.com/paywall")
