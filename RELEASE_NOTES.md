@@ -1,5 +1,14 @@
 # Release Notes
 
+## v0.4.1
+
+- **Fix article cutoff**: articles now load in full. The Economist changed their site to render one teaser paragraph behind a registration wall, then inject the rest via client-side JS after an auth check. The fetcher now waits for that content to load.
+- **Fix auth cookie capture**: login now captures cookies from all `*.economist.com` subdomains (previously only the base domain, which missed the critical Salesforce and Zephr paywall session cookies). Auth cookie names updated to match the current site.
+- **Fix Cloudflare rejection**: Cloudflare fingerprint-bound cookies (`cf_clearance`) are no longer injected into the headless browser, which was causing requests to be blocked.
+- **Updated content selectors**: article body extraction now uses the current `p[data-component="paragraph"]` selector alongside legacy selectors.
+
+> **Note:** users upgrading from v0.4.0 or earlier need to re-run `economist login` to capture the correct auth cookies.
+
 ## v0.4.0
 
 - **Search bar redesign**: vim-style `/` prefix, cursor indicator, Chicago20 background when active, result count display, and red styling for no-match state.
